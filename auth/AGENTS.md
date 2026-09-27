@@ -6,7 +6,7 @@ file first; it tells you where everything else is.
 pesu-auth is a small, stateless FastAPI service that authenticates PESU students against PESU
 Academy (by driving its web login) and optionally returns their scraped profile. It has no database;
 PESU Academy is its only dependency. It is public, used by other student projects, and deployed on
-Render: production `https://pesu-auth.onrender.com`, staging `https://pesu-auth-dev.onrender.com`.
+Render: production `https://pesuauth.onrender.com`, staging `https://pesuauth-dev.onrender.com`.
 
 ## Where the agent material lives
 

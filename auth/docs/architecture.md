@@ -11,7 +11,7 @@ page. It stores nothing. PESU Academy is its **only** dependency: there is no da
 server or queue. Every counter lives in process memory.
 
 Deployed on Render (free tier, Singapore) as a single uvicorn worker: production at
-`https://pesu-auth.onrender.com`, staging at `https://pesu-auth-dev.onrender.com`.
+`https://pesuauth.onrender.com`, staging at `https://pesuauth-dev.onrender.com`.
 
 ## Module map
 

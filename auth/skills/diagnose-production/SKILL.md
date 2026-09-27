@@ -5,10 +5,10 @@ description: Investigate pesu-auth problems in production or staging - errors, l
 
 # Diagnosing production and staging
 
-| Environment | URL                                  | Status page                            |
-| ----------- | ------------------------------------ | -------------------------------------- |
-| Production  | `https://pesu-auth.onrender.com`     | `https://xzlk85cp.status.cron-job.org` |
-| Staging     | `https://pesu-auth-dev.onrender.com` | `https://6ns95sgb.status.cron-job.org` |
+| Environment | URL                                 | Status page                            |
+| ----------- | ----------------------------------- | -------------------------------------- |
+| Production  | `https://pesuauth.onrender.com`     | `https://xzlk85cp.status.cron-job.org` |
+| Staging     | `https://pesuauth-dev.onrender.com` | `https://6ns95sgb.status.cron-job.org` |
 
 The Grafana dashboard linked in the README shows both environments' metrics over time. Both run on
 Render's free tier in Singapore: a cold start after idling takes tens of seconds, and restarts reset
@@ -17,8 +17,8 @@ all counters.
 ## 1. Establish facts
 
 ```bash
-curl -s https://pesu-auth.onrender.com/openapi.json | python -c 'import json,sys; print(json.load(sys.stdin)["info"]["version"])'
-curl -s -w "\n%{http_code} %{time_total}s\n" https://pesu-auth.onrender.com/health
+curl -s https://pesuauth.onrender.com/openapi.json | python -c 'import json,sys; print(json.load(sys.stdin)["info"]["version"])'
+curl -s -w "\n%{http_code} %{time_total}s\n" https://pesuauth.onrender.com/health
 gh run list --repo pesu-dev/auth --workflow deploy-prod.yaml --limit 3      # recent deploys
 git log --oneline upstream/main -10                                          # what is in prod
 ```
@@ -26,7 +26,7 @@ git log --oneline upstream/main -10                                          # w
 ## 2. Read the metrics
 
 ```bash
-curl -s "https://pesu-auth.onrender.com/metrics?fmt=json" | python -m json.tool
+curl -s "https://pesuauth.onrender.com/metrics?fmt=json" | python -m json.tool
 ```
 
 If it answers 401, `METRICS_TOKEN` is set on the service; use a token only if the human provided one

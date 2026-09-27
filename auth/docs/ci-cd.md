@@ -49,9 +49,9 @@ Agents take the second route. A bump that only changes role bodies, skills or do
 ## Deployment flow
 
 1. PR merged into `dev` → Pre-Commit Checks on `dev` (with live tests) → staging deploy
-   (`https://pesu-auth-dev.onrender.com`).
+   (`https://pesuauth-dev.onrender.com`).
 1. A maintainer validates staging, then dispatches Deploy to Production → `main` fast-forwarded →
-   images published → staging and production (`https://pesu-auth.onrender.com`) deployed.
+   images published → staging and production (`https://pesuauth.onrender.com`) deployed.
 1. The deployed version is visible at `/openapi.json` → `info.version` and on the README badges.
 
 Rollback: there is no automated rollback. The options are a revert PR into `dev` followed by a
