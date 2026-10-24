@@ -1,134 +1,160 @@
 # Testing
 
-How the pesu-auth test suite is organised, how to run it, and how to write tests that fit.
+How to run the pesu-auth test suite, what to watch out for, and the recipes for tests that fit. The
+layout, the coverage rules, the live tests and the benchmarks are described in the repository's own
+`docs/testing.md`; this file adds what an agent needs on top.
 
 ## Layout
 
-| Path                                               | What lives there                                                                                                                              | Network                                                                            |
-| -------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
-| `tests/unit/`                                      | One file per module or concern: `test_pesu.py`, `test_app_unit.py`, `test_request_model.py`, `test_metrics_*.py`, `test_openapi_docs.py`, ... | None: upstream is mocked                                                           |
-| `tests/functional/test_authenticate_functional.py` | `PESUAcademy` against the real PESU Academy                                                                                                   | **Live**                                                                           |
-| `tests/integration/test_app_integration.py`        | The full app through `TestClient`                                                                                                             | **Live** (its `client` fixture runs the real lifespan, which fetches a CSRF token) |
-| `tests/conftest.py`                                | `load_dotenv()`, the autouse `_metrics_token_unset` fixture, and forced ordering unit → functional → integration                              |                                                                                    |
+| Path                                               | What lives there                                                                                                                                                                                                                 | Network                      |
+| -------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------- |
+| `tests/unit/`                                      | One file per concern: `test_pesu.py`, `test_authenticate_flow.py` (the whole app with PESU mocked on the wire), `test_app_unit.py`, `test_metrics_*.py`, `test_openapi_docs.py`, `test_openapi_contract.py`, `test_docs.py`, ... | None: PESU Academy is mocked |
+| `tests/unit/conftest.py`                           | The upstream fixtures (`upstream`, `wire`, `make_response`, `multipart_fields`), the fixture payloads (`login_payload`, `profile_payload`, `full_profile`, `secrets`) and every constant the unit tests use                      |                              |
+| `tests/functional/test_authenticate_functional.py` | `PESUAcademy` against the real PESU Academy                                                                                                                                                                                      | **Live**                     |
+| `tests/integration/test_app_integration.py`        | The full app through `TestClient`, with its real lifespan                                                                                                                                                                        | **Live**                     |
+| `tests/conftest.py`                                | `load_dotenv()`, `PROFILE_VARIABLES` (one `TEST_*` variable per profile field), the live-profile checks, the autouse `_metrics_token_unset`, and the forced order unit → functional → integration                                |                              |
 
-11 tests are marked `@pytest.mark.secret_required`: they log in with the `TEST_*` credentials from
-`.env`. Everything else runs without credentials, **but the functional and integration files still
-need internet access to pesuacademy.com** (invalid-credential and validation tests go through the
-real lifespan or login). The unit tests run fully offline.
-
-Today: 276 tests, 100% line coverage of `app/`, about 6 seconds without the live tests.
+The tests marked `@pytest.mark.secret_required` log in with the `TEST_*` account from `.env`, and the
+ones that fetch a profile compare every field with its variable. The other functional and integration tests still
+call pesuacademy.com (with invalid credentials), so only `tests/unit/` runs offline.
 
 ## Running
 
 ```bash
-uv run python scripts/run_tests.py                  # the canonical run: coverage gate, live-test fallback
-uv run pytest tests/unit -q                          # fast, offline
+uv run python scripts/run_tests.py                   # the canonical run: coverage gate, live-test fallback
+uv run pytest tests/unit -q                          # offline, under a minute
 uv run pytest tests/unit/test_pesu.py::test_name -v  # one test
-uv run pytest -m "not secret_required"               # everything that needs no credentials
-uv run pre-commit run --all-files                    # everything CI runs, tests included
+uv run pytest -m "not secret_required"               # everything that needs no credentials (needs internet)
+uv run pytest -m secret_required -v                  # the live tests only
+uv run pre-commit run --all-files                    # every hook, the tests included
 ```
 
-`scripts/run_tests.py` runs `pytest --cov=app --cov-report=term-missing --cov-fail-under=95 --disable-warnings -v -s`. If `TEST_EMAIL`, `TEST_PRN`, `TEST_PHONE` or `TEST_PASSWORD` is missing, it
-adds `-m "not secret_required"` and prints **"Live PESU tests skipped"**. A run with that line is a
-**partial** run; report it as such, never as a full pass.
+`scripts/run_tests.py` runs `pytest --cov --cov-report=term-missing --disable-warnings -v -s`.
+Coverage is configured once, in `[tool.coverage]` in `pyproject.toml`: it measures `app/`,
+`scripts/` and `.github/scripts/`, counts branches, and fails under **100%**. If any of
+`TEST_EMAIL`, `TEST_PRN`, `TEST_SRN`, `TEST_MOBILE` or `TEST_PASSWORD` is missing, the runner adds
+`-m "not secret_required"` and warns **"Live PESU tests skipped"** (also as a GitHub Actions
+annotation and in the step summary). A run with that warning is a **partial** run; report it as
+such, never as a full pass.
 
-## The live tests and the single session
+## The live tests
 
-The PESU test account allows **one active session**. Two concurrent logins make one of them fail
-with a confusing 401. Therefore:
-
-- Run live tests **one run at a time**. Never run two test processes in parallel, never run pytest
-  with `-n`/xdist, and never start a live run while another agent or terminal is running one.
-- CI runs the live tests on pushes to `dev` (where secrets exist). Do not start a local live run
-  right after something merged to `dev`.
-- Never print, log or paste the values of `TEST_*` variables.
-- Live runs send real traffic to PESU Academy. Do not loop them.
-
-Fork pull requests get no secrets, so CI runs the reduced suite on every PR. That makes a local live
-run the only place a change to login or scraping is verified before merge. Do it for any change to
-`app/pesu.py` or to the `/authenticate` path when credentials are available.
+- PESU Academy allows several sessions per account, so concurrent logins do not fail each other. The
+  rules are about load and honest timings instead: run the live tests when a change needs them, once,
+  never in a loop, never alongside another live run or a benchmark, and never with `-n`.
+- Never print, log or paste the values of `TEST_*` variables. The live checks name mismatched fields,
+  never their values; keep it that way.
+- Fork pull requests get no secrets, so CI runs the reduced suite on every PR and the live tests only
+  on pushes to `dev`. A local live run is the only place a change to `app/pesu.py`,
+  `app/models/upstream.py` or the `/authenticate` path is verified against PESU before merge. Do it
+  when credentials are available.
+- A live failure on a field comparison after a PESU app release usually means their API changed (see
+  `.agents/pesudev-skills/auth/docs/upstream.md`), not that the code did.
+- A new profile field needs a `TEST_*` variable named after it, in `.env.example`, `PROFILE_VARIABLES`
+  and the test job's `env` in `.github/workflows/ci_checks.yml`; a maintainer adds the secret.
 
 ## Fixtures and mocking recipes (copy these)
 
-**App through `TestClient` without touching the network** (from `tests/unit/test_app_unit.py`):
+**The app through `TestClient`.** The lifespan makes no upstream calls, so the real one is safe to
+enter. Patch the upstream result per test:
 
 ```python
 @pytest.fixture
 def client():
-    with (
-        patch("app.app.pesu_academy.prefetch_client_with_csrf_token", new_callable=AsyncMock),
-        patch("app.app.pesu_academy.close_client", new_callable=AsyncMock),
-    ):
-        with TestClient(app, raise_server_exceptions=False) as client:
-            yield client
+    with TestClient(app, raise_server_exceptions=False) as client:
+        yield client
+
+
+@patch("app.app.pesu_academy.authenticate")
+def test_x(mock_authenticate, client):
+    mock_authenticate.side_effect = AuthenticationError()
+    ...
 ```
 
-Then patch the upstream result per test: `@patch("app.app.pesu_academy.authenticate")` with a
-`return_value` dict or a `side_effect` exception.
-
-**Fresh metrics per test.** The collector is a module singleton, so asserting absolute counts
-without a fresh one is order-dependent (and the forced ordering hides it locally):
+**`PESUAcademy` with PESU mocked.** Inject a fresh collector, and give the `upstream` fixture (which
+patches `httpx2.AsyncClient.post`) real responses from `make_response`, in call order:
 
 ```python
-monkeypatch.setattr("app.app.metrics", MetricsCollector())
-```
+@pytest.fixture
+def collector():
+    return MetricsCollector(clock=lambda: 1000.0)
 
-For `PESUAcademy` directly, inject one: `PESUAcademy(MetricsCollector(clock=lambda: 1000.0))`
-(see `tests/unit/test_metrics_instrumentation.py`).
 
-**Upstream HTTP.** Patch the client methods and give responses `text` and `status_code`:
+@pytest.fixture
+def pesu(collector):
+    return PESUAcademy(collector)
 
-```python
-@patch("app.pesu.httpx2.AsyncClient.get")
-@patch("app.pesu.httpx2.AsyncClient.post")
+
 @pytest.mark.asyncio
-async def test_x(mock_post, mock_get, pesu): ...
+async def test_x(pesu, upstream, make_response, login_payload, profile_payload):
+    upstream.side_effect = [make_response(json=login_payload), make_response(json=profile_payload)]
+    result = await pesu.authenticate("user", "pass", profile=True)
+    ...
 ```
 
-Mock decorators apply bottom-up, so the first argument is the **last** decorator. Build profile
-pages as small HTML strings with the real selectors (`div.elem-info-wrapper`, `div.form-group`,
-`label.lbl-title-light` + `label`, `#updateMail`, `#updateContact`); see `test_pesu.py`.
+Edit the deep-copied `login_payload` and `profile_payload` per test rather than writing new
+payloads; they are shaped like the real responses, with invented values, and include personal
+fields (`secrets`) the service must drop, so tests can prove it does.
+
+**What goes over the wire.** The `wire` fixture replaces `httpx2.AsyncClient` with real clients on a
+recording `MockTransport`, so headers, multipart encoding, timeouts and redirect handling run for
+real. Route each URL to a callable returning a response or an exception, then inspect
+`wire.requests`, `wire.client_options` and the decoded `multipart_fields(request)`. Use it for
+anything about the request itself (`test_the_login_request_on_the_wire`,
+`test_a_redirect_is_not_followed`), and through the whole app in `tests/unit/test_authenticate_flow.py`,
+whose `collector` fixture also swaps `app.app.pesu_academy._metrics`.
+
+**Fresh metrics per test.** The collector is a module singleton, so asserting absolute counts on it
+is order-dependent (and the forced ordering hides that locally):
+`monkeypatch.setattr("app.app.metrics", MetricsCollector())`.
 
 **METRICS_TOKEN.** The autouse fixture sets `app.metrics.auth.METRICS_TOKEN` to `None`. A test that
-needs protection sets it: `monkeypatch.setattr("app.metrics.auth.METRICS_TOKEN", "some-token")`.
+needs protection sets it: `monkeypatch.setattr("app.metrics.auth.METRICS_TOKEN", metrics_token)`.
 
 **OpenAPI schema.** Reset the cache around generation: `app.openapi_schema = None` (see
 `tests/unit/test_openapi_docs.py`).
 
 **Throwaway routes.** To test the unhandled-exception path, tests mount an `APIRouter` with
-`include_in_schema=False` onto the real app at import time. Reuse that pattern; keep the route out
-of the schema so the OpenAPI tests stay valid.
+`include_in_schema=False` onto the real app at import time (`tests/unit/test_metrics_endpoints.py`).
+Reuse that pattern; keep the route out of the schema so the OpenAPI and contract tests stay valid.
 
-**Logs.** Use `caplog` (`with caplog.at_level("DEBUG"):`) to assert what was logged, and to assert
-what was **not** logged (for example that a password never appears).
+**Logs.** Use `caplog` (`with caplog.at_level("DEBUG"):`) to assert what was logged, and what was
+**not**: no password, no access token, none of the `secrets` values.
 
-**Async.** Mark coroutine tests `@pytest.mark.asyncio` (pytest-asyncio is in strict mode by default).
+**Async and cancellation.** Mark coroutine tests `@pytest.mark.asyncio` (strict mode). Hold a
+coroutine at a known await with `asyncio.Event`s, cancel it with `task.cancel()`, and assert the
+cleanup (`test_a_cancellation_during_the_close_still_closes`).
+
+## Style the maintainers ask for
+
+- Every constant a test file uses lives in a `conftest.py` and reaches tests through fixtures
+  (parametrized fixtures where a `parametrize` list would need one), as `tests/unit/conftest.py` does.
+- No `# --- Section ---` marker comments in test files.
+- Put assertions about an exception after its `with pytest.raises(...) as exc_info:` block, never
+  inside it, where they do not run.
+- Tests are linted by ruff like the rest of the code, except that annotations and docstrings are not
+  required (`ANN` and `D1` are ignored under `tests/`). A docstring that says why a test exists is
+  still welcome.
+- File and function names start with `test_` (the `name-tests-test` hook); name tests for the
+  behaviour: `test_a_redirect_is_not_followed`, not `test_login_3`.
 
 ## What a change needs
 
 - A regression test that fails before a bug fix and passes after.
-- Unit tests for every new branch. Coverage is 100% today; keep it there even though the gate is 95%.
+- Tests for every new line and branch: the gate is 100% line and branch coverage.
 - Metric assertions when a code path records metrics (`tests/unit/test_metrics_instrumentation.py`
-  asserts upstream and cache metrics path by path).
-- OpenAPI tests pass unchanged for a new route; they will fail if docs are missing (see
-  `.agents/pesudev-skills/auth/docs/api-contract.md`).
-- A live test (`secret_required`) only when behaviour depends on the real PESU page, and never with
-  assertions on personal values other than those supplied in `TEST_*` variables.
-
-## Anti-patterns found in the suite (do not copy)
-
-- Asserting after the raising call inside `with pytest.raises(...)`: those lines never run. Put
-  assertions on the exception (`exc_info.value`) after the block.
-- `tests/unit/test_readme.py` patches `readme` and then calls the mock, so it tests nothing. Test
-  real routes through `TestClient`.
-- Asserting absolute metric counts on the shared singleton.
+  asserts the upstream and client metrics path by path).
+- The OpenAPI and contract tests pass unchanged for a new route; they fail if its docs are missing
+  (see `.agents/pesudev-skills/auth/docs/api-contract.md`).
+- `tests/unit/test_docs.py` passes: a new error class, CLI option, environment variable or file path
+  named in `docs/` must be reflected there.
+- A live test (`secret_required`) only when behaviour depends on PESU's real responses, and never
+  with assertions on personal values other than those supplied in `TEST_*` variables.
 
 ## CI
 
-`pre-commit.yaml` runs `uv run pre-commit run --all-files` on every push and PR, which includes the
-`pytest` hook (`python scripts/run_tests.py`, verbose so the skip warning is visible) and the
-`sync-agents` hook (`python scripts/sync_agents.py --check`). The workflow checks out the
-`.agents/pesudev-skills` submodule for the latter; `tests/unit/test_sync_agents.py` also compares
-the committed `.github/agents/` with the submodule, and skips that one test when the submodule is
-not checked out. Secrets are present on pushes to the base repository, not on fork PRs. See
+The *CI Checks* workflow (`.github/workflows/ci_checks.yml`) runs the hooks in its *Pre-commit
+hooks* job with `SKIP=pytest`, and the tests in *Test suite & coverage* (`uv sync --locked --all-groups`, then `scripts/run_tests.py`). The `TEST_*` secrets reach that job only on pushes to
+`dev`, never on fork PRs. `tests/unit/test_sync_agents.py` compares the committed `.github/agents/`
+with the submodule and skips that one test when the submodule is not checked out. See
 `.agents/pesudev-skills/auth/docs/ci-cd.md`.

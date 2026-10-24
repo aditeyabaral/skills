@@ -208,7 +208,7 @@ example): agents would have two competing skills for the same task.
 1. Optional, if the project has roles: generate Copilot wrappers for them as described in
    [Roles as Copilot custom agents](#roles-as-copilot-custom-agents), copying `auth`'s
    `scripts/sync_agents.py`, its `sync-agents` pre-commit hook, `submodules: true` on the
-   pre-commit workflow's checkout, and `.github/workflows/copilot-setup-steps.yml`.
+   checkout of the CI job that runs the hooks, and `.github/workflows/copilot-setup-steps.yml`.
 
 ## Cloning a project
 

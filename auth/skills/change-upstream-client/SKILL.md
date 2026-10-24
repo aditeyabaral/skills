@@ -1,69 +1,71 @@
 ---
 name: change-upstream-client
-description: Safely change pesu-auth's upstream client machinery in app/pesu.py and the lifespan - CSRF prefetch cache, locking, background tasks, HTTP client creation and closing, timeouts, cancellation - without reintroducing connection leaks, races or lost exceptions. Use for any change to concurrency, client lifecycle or upstream request handling.
+description: Safely change how pesu-auth talks to PESU Academy in app/pesu.py - HTTP client creation and closing, timeouts, redirects, cancellation, error mapping and the measurement of each call - without reintroducing connection leaks, shared state between users or lost exceptions. Use for any change to the client lifecycle, concurrency or upstream request handling.
 ---
 
 # Changing the upstream client
 
-This code has had real leaks and races; nearly every line in it exists because of one. Read
-"The CSRF prefetch design" and "Client lifecycle and cancellation" in
-`.agents/pesudev-skills/auth/docs/architecture.md`, and the comments in `app/pesu.py`, before editing.
+Earlier releases leaked connection pools, mixed sessions between users and let cleanup errors hide
+real ones; most of the lines in this part of `app/pesu.py` exist because of one of those. Read "The
+upstream client" in `.agents/pesudev-skills/auth/docs/architecture.md`, the flow in
+`.agents/pesudev-skills/auth/docs/upstream.md`, and the comments in `app/pesu.py` before editing.
 
 ## Invariants you must preserve
 
-1. **Every `httpx2.AsyncClient` is closed exactly once, on every path**: success, exception,
-   `CancelledError`, and cancellation arriving *during* cleanup. Use `_close_client_quietly` (shielded,
-   strong-referenced) for closes in `except BaseException`/`finally` blocks.
-1. **A client is used by exactly one login.** Take it out of the cache under `_csrf_lock` and clear
-   the cache in the same critical section.
-1. **Never hold `_csrf_lock` across an upstream request.** Fetch outside, swap inside.
-1. **Background tasks are strong-referenced** (`_prefetch_tasks`, `_CLOSE_TASKS`) and their results
-   retrieved in a done callback, so failures are logged and counted instead of "Task exception was
-   never retrieved".
-1. **Shutdown cancels prefetches before closing the cached client** (`close_client`), so nothing is
-   cached after close.
-1. **Every upstream call is inside `_upstream_call`** with an operation label, so it is counted and
-   timed exactly once; cancellation is `cancelled`, not `error`.
-1. **Cleanup failures never replace the original error** (a failing close must not turn a 401 into a
-   500).
-1. **HTML parsing runs in `asyncio.to_thread`.**
-1. `except BaseException` where cancellation must trigger cleanup; `except Exception` where it must
-   not be swallowed. Always re-raise.
+1. **One client per login, used by nobody else.** `authenticate` creates the `httpx2.AsyncClient`;
+   `_login` and `_fetch_profile` receive it. Never keep a client, a token or a response on `self` or
+   at module level, and never prepare anything ahead of a request.
+1. **Every client is closed exactly once, on every path**: success, each exception,
+   `CancelledError`, and a cancellation arriving *during* the close. The close is
+   `await _close_client_quietly(client, self._metrics)` in the `finally` of `authenticate`: a shielded
+   task, strong-referenced in `_CLOSE_TASKS`, so it completes even when the request is cancelled.
+1. **Cleanup failures never replace the original error.** `_aclose_client` logs and counts a failing
+   close (`http_clients_total{event="close_failed"}`); a 401 must stay a 401.
+1. **Every upstream request is inside `_upstream_call`** with an operation label, and the response
+   is appended to the sink, so each call is counted and timed exactly once and its status recorded.
+   Cancellation is `cancelled`, never `error`.
+1. **Transport failures map to the step's error.** `httpx2.HTTPError` (timeouts, connection
+   failures) is an `UpstreamError` during the login and a `ProfileFetchError` during the profile,
+   raised `from e`.
+1. **Timeout and redirects.** `UPSTREAM_TIMEOUT_SECONDS` (10) bounds how long a caller waits on
+   PESU; redirects are not followed. Changing either changes user-visible behaviour and needs a reason
+   in the PR.
+1. **No upstream call outside a request**, so the app and `TestClient(app)` start without network
+   access.
+1. **Parse failures stay private.** Never log or chain a pydantic `ValidationError` from a PESU
+   response; log `_validation_failure_summary(e)` and raise with `from None`.
+1. **`http_clients_total` created minus closed is 0 at rest.**
 
 ## Testing each path
 
 For every path you touch, write a test that fails if the invariant breaks. Existing examples in
 `tests/unit/test_pesu.py` to copy:
 
-- `test_authenticate_closes_client_on_*`: close on success and on each error.
-- `test_fetch_new_client_closes_client_when_*`: close when the fetch fails.
-- `test_prefetch_closes_new_client_when_cancelled_before_caching` and
-  `..._during_cleanup`: cancellation at each await.
-- `test_close_client_cancels_in_flight_prefetch`, `test_get_client_holds_strong_reference_to_prefetch_task`,
-  `test_prefetch_task_failure_is_logged`, `test_authenticate_triggers_exactly_one_prefetch`.
+- `test_each_login_gets_its_own_client_and_closes_it`, `test_the_client_is_closed_when_the_login_fails`,
+  `test_the_client_is_closed_when_the_profile_fails`: close on success and on each error.
+- `test_a_cancelled_profile_fetch_closes_the_client`, `test_a_cancellation_during_the_close_still_closes`:
+  cancellation at each await, including during cleanup.
+- `test_concurrent_logins_do_not_share_anything`: two logins in flight at once.
+- `test_one_client_per_login_with_a_timeout_and_no_redirects`, `test_a_redirect_is_not_followed`,
+  `test_a_timeout_is_an_upstream_error`, `test_the_login_request_on_the_wire`: through the `wire`
+  fixture, so the real client builds and sends each request.
+- `tests/unit/test_metrics_instrumentation.py`: the upstream and client metrics path by path.
 
-Technique: patch `httpx2.AsyncClient` (or `_fetch_new_client_with_csrf_token`) with `AsyncMock`s,
-control ordering with `asyncio.Event`s, cancel with `task.cancel()` at a chosen await, then assert
-`client.aclose.await_count == 1` and the `http_clients_total` created/closed counts on a fresh
-collector.
+Technique: the `upstream` fixture (patches `post`) or the `wire` fixture (a real client on a mock
+transport), `make_response` for real `httpx2.Response`s, `asyncio.Event`s to hold a coroutine at a
+known await, `task.cancel()` to cancel there, then assert the `http_clients_total` created and closed
+counts on a fresh collector.
 
 ## Verifying for real
 
 ```bash
 uv run python scripts/run_tests.py
-uv run pytest -m secret_required -v                  # once, alone
+uv run pytest -m secret_required -v                  # once, with credentials
 uv run python -m app.app                             # then, in another shell:
-curl -s "localhost:5000/metrics?fmt=json" | python -m json.tool | grep -A4 httpClients
+curl -s "localhost:5000/metrics?fmt=json" | python -m json.tool | grep -A3 httpClients
 ```
 
-After some logins and at rest, `created - closed` must be **1**. Stop the server with Ctrl+C and
+After some logins and at rest, `created - closed` must be **0**. Stop the server with Ctrl+C and
 check the log shows a clean shutdown with no "Task was destroyed" or "Unclosed client" warnings. For
 load behaviour, run the `benchmark` skill with `--parallel` against the local server (small request
-counts: it logs in to PESU for real) and check `csrfCache` hit rate and the client counts again.
-
-## Changing the refresh interval or timeouts
-
-`CSRF_TOKEN_REFRESH_INTERVAL_SECONDS` (45 min) should stay below the token's lifetime; measure it
-with `scripts/benchmark/unauthenticated_csrf_token_expiry.py` before changing it. The client timeout
-(10s) bounds how long a caller can wait on PESU; changing it changes user-visible latency and should
-be justified in the PR.
+counts: it logs in to PESU for real) and check the client counts again.

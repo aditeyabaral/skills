@@ -31,7 +31,7 @@ and do not pad the report with style nits the linters already catch.
 approve | changes required
 
 ## Findings (most severe first)
-1. [blocking|should-fix|nit] <file>:<line> — <problem>. Failure scenario: <inputs → wrong result>. Fix: <suggestion>.
+1. [blocking|should-fix|nit] `<file>:<line>`: <problem>. Failure scenario: <inputs → wrong result>. Fix: <suggestion>.
 
 ## Checked and fine
 - <areas verified, with how>

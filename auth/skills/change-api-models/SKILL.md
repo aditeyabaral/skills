@@ -28,31 +28,34 @@ Contract rules: `.agents/pesudev-skills/auth/docs/api-contract.md`.
 - Every field: `title`, `description`, `json_schema_extra={"example": ...}`.
 - Validators are `@field_validator` classmethods with a docstring, raising `ValueError` with a
   message a caller can act on; the 400 message is built from it (`body.<field>: Value error, <msg>`).
-- Optional response fields default to `None`; they are omitted from responses (`exclude_none=True`).
+- Optional response fields default to `None`. `/authenticate` dumps with `exclude_unset=True`, so a
+  field that was set to `None` is returned as `null` and only a field never set (the profile when it
+  was not requested, a field filtered out) is absent. Never switch it to `exclude_none`.
 
 ## 3. Every place a field appears
 
 For a request field:
 
-- `RequestModel` + validator; `KNOWN_REQUEST_FIELDS` in `app/app.py` (validation-error metric label
+- `RequestModel` + validator, with a length limit for any string; `KNOWN_REQUEST_FIELDS` in `app/app.py` (validation-error metric label
   set; add the wire name, or it is counted as `other`).
 - Where it is consumed: `authenticate()` in `app/app.py` → `PESUAcademy.authenticate` in `app/pesu.py`.
 - `app/docs/authenticate.py` request examples (they are validated against `RequestModel`).
-- README "Request Parameters" table.
+- README "Request Parameters" table, and the `authenticate` route docstring in `app/app.py`.
 
-For a profile field: follow `update-scraper` (it also covers `ProfileField` and the parser).
+For a profile field: follow `update-scraper` (it covers `ProfileField` in `app/models/profile.py`,
+the upstream model and `_build_profile`).
 
 For a response field:
 
 - `ResponseModel` (or `ProfileModel`), the code that fills it, `app/docs/authenticate.py` response
   examples (validated against `ResponseModel`), README "Response Object"/`ProfileObject` tables and
-  the integration examples at the end of the README.
+  the full request and response under "Integrating your application with the PESUAuth API".
 
 ## 4. Removing or renaming (breaking)
 
 - Remove it from the model; `extra="forbid"` turns old payloads into a 400 naming the key.
 - Add regression tests that send the old key (snake_case and camelCase) and assert the 400 message,
-  like `test_integration_authenticate_deprecated_*` in `tests/integration/test_app_integration.py`.
+  like `test_validate_deprecated_*` in `tests/unit/test_request_model.py`.
 - Major version bump, `feat!:` commit, and a "Breaking change" section in the PR.
 
 ## 5. Tests
@@ -60,4 +63,5 @@ For a response field:
 - `tests/unit/test_request_model.py`: valid values, each invalid value, strictness (wrong types are
   rejected, not coerced), aliasing (camelCase accepted, snake_case rejected where `extra="forbid"`).
 - Route-level tests through `TestClient` for the 400 body and message.
-- `uv run pytest tests/unit/test_openapi_docs.py -q` for the examples.
+- `uv run pytest tests/unit/test_openapi_docs.py tests/unit/test_openapi_contract.py -q` for the
+  examples and the schema.

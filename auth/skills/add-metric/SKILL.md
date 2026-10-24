@@ -1,6 +1,6 @@
 ---
 name: add-metric
-description: Add or change a pesu-auth metric - MetricFamily in the registry, recording at the right layer with bounded labels, the JSON MetricsModel view, both documentation examples, README tables and tests - while keeping the accounting invariants true. Use for any new counter, gauge or summary, or a change to an existing one.
+description: Add or change a pesu-auth metric - MetricFamily in the registry, recording at the right layer with bounded labels, the JSON MetricsModel view, both documentation examples, the docs/metrics.md row and tests - while keeping the accounting invariants true. Use for any new counter, gauge or summary, or a change to an existing one.
 ---
 
 # Adding a metric
@@ -53,9 +53,10 @@ the model is strict. Import the constant at the top of the file with the others.
 
 - `app/docs/metrics.py`: HELP, TYPE and one sample line in `_PROMETHEUS_EXAMPLE` (in `FAMILIES`
   order), and the key in `_JSON_EXAMPLE`.
-- `README.md` "`/metrics`": a row in the right "What each metric means" table (Traffic, Failures,
-  Authentication, Upstream, Internals), the full Prometheus example and the full JSON example in the
-  `<details>` blocks. If an accounting rule changes, update "How collection works".
+- The repository's `docs/metrics.md`: a row in the right "What each metric means" table (Traffic,
+  Failures, Authentication, Upstream, Internals), the full Prometheus example and the full JSON
+  example. `test_the_metrics_doc_describes_every_family` fails until the row exists. If an accounting
+  rule changes, update "How collection works" there.
 
 ## 6. Tests
 

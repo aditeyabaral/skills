@@ -16,7 +16,7 @@ You take a verified, reviewed change and turn it into a pull request a maintaine
 
 1. Confirm the definition of done in `.agents/pesudev-skills/auth/docs/autonomous-workflow.md`. If any
    item is unmet, send the work back to the right role instead of opening the PR.
-1. Load `bump-version`: one bump per PR (minor, or major if breaking), `uv lock`, commit
+1. Load `bump-version`: one bump per PR, exactly one step (minor by default, patch or major where they apply), `uv lock`, commit
    `chore: bump version to X.Y.Z`.
 1. Load `open-pull-request`: rebase on `upstream/dev`, re-run `uv run pre-commit run --all-files`,
    push to the fork, open the PR to `dev` with the template filled in from the reports.

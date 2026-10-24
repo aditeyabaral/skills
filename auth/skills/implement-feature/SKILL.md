@@ -45,17 +45,17 @@ expected reason.
 
 Load the area skill(s) from the plan:
 
-| Change                                        | Skill                    |
-| --------------------------------------------- | ------------------------ |
-| new route                                     | `add-endpoint`           |
-| request/response/profile fields or validation | `change-api-models`      |
-| PESU HTML, login, new profile field           | `update-scraper`         |
-| new metric                                    | `add-metric`             |
-| new failure mode                              | `add-error-type`         |
-| CSRF cache, client lifecycle, concurrency     | `change-upstream-client` |
-| packages or tool versions                     | `update-dependencies`    |
-| restructure only                              | `refactor`               |
-| bug                                           | `fix-bug`                |
+| Change                                         | Skill                    |
+| ---------------------------------------------- | ------------------------ |
+| new route                                      | `add-endpoint`           |
+| request/response/profile fields or validation  | `change-api-models`      |
+| PESU's API, login, profile fields              | `update-scraper`         |
+| new metric                                     | `add-metric`             |
+| new failure mode                               | `add-error-type`         |
+| HTTP client, lifecycle, timeouts, cancellation | `change-upstream-client` |
+| packages or tool versions                      | `update-dependencies`    |
+| restructure only                               | `refactor`               |
+| bug                                            | `fix-bug`                |
 
 Work step by step, narrowest test first. Commit logical steps as you go (`open-pull-request` has
 the commit format).
@@ -63,13 +63,14 @@ the commit format).
 ## Phase 5: Verify (role: `test-engineer`)
 
 ```bash
-uv run python scripts/run_tests.py          # all green, coverage ≥ 95% and not lower than baseline
+uv run python scripts/run_tests.py          # all green, 100% line and branch coverage
 uv run pre-commit run --all-files           # lint, format, mdformat, hygiene, tests
 ```
 
 Then, as relevant:
 
-- live tests once, alone, if `app/pesu.py` or `/authenticate` changed and `.env` has credentials:
+- live tests once, if `app/pesu.py`, `app/models/upstream.py` or `/authenticate` changed and `.env`
+  has credentials:
   `uv run pytest -m secret_required -v`;
 - `run-locally`: smoke-test affected endpoints on a running server, and the Docker image if runtime,
   dependencies or the `Dockerfile` changed.

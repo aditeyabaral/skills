@@ -10,7 +10,7 @@ description: Fix a pesu-auth bug properly - reproduce it, capture it in a failin
 - Get the exact input and the observed vs expected output (from `triage-issue`).
 - Reproduce with the cheapest tool: a `TestClient` call with the upstream mocked (see the fixture
   recipes in `.agents/pesudev-skills/auth/docs/testing.md`), a unit call on `PESUAcademy`, or a running
-  server (`run-locally`). Use the live account only when the bug depends on PESU's real HTML.
+  server (`run-locally`). Use the live account only when the bug depends on PESU's real responses.
 - If "expected" is unclear, the README and `.agents/pesudev-skills/auth/docs/api-contract.md` define it. If they are silent,
   decide from the code's intent and say so in the PR.
 

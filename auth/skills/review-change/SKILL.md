@@ -37,15 +37,18 @@ completeness and scope.
 - Status codes follow the table; errors raised as `PESUAcademyError` subclasses; standard error body.
 - Is anything backwards-incompatible? If yes: major bump, `!` commit, called out in the PR.
 
-**Upstream client** (`change-upstream-client` invariants), if `app/pesu.py` or the lifespan changed
+**Upstream client** (`change-upstream-client` invariants), if `app/pesu.py` or `app/models/upstream.py` changed
 
 - Clients closed exactly once on every path; one client per login; `_upstream_call` around every
-  upstream request.
+  upstream request; transport errors mapped to the step's error.
+- Values returned as PESU sends them, from one source, or null; a changed field null and counted, not
+  a failed login; no new field read that the API does not return; parse errors never logged or
+  chained.
 
 **Metrics** (`.agents/pesudev-skills/auth/docs/metrics.md`), if recording changed
 
-- Bounded labels; one fact in one family; registry, JSON model, both doc examples and README all
-  updated; invariants still hold.
+- Bounded labels; one fact in one family; registry, JSON model, both doc examples and the
+  `docs/metrics.md` row all updated; invariants still hold.
 
 **Security** (`security-review`)
 
@@ -54,12 +57,15 @@ completeness and scope.
 **Tests** (`.agents/pesudev-skills/auth/docs/testing.md`)
 
 - New behaviour and each new branch tested; regression test for a bug; assertions meaningful (not
-  after a raise, not on a mock); fresh collectors; no network in unit tests; coverage not reduced.
+  inside a `pytest.raises` block, not on a mock); fresh collectors; no network in unit tests; 100%
+  line and branch coverage.
+- Test constants in a `conftest.py`, reached through fixtures; no section marker comments.
 
 **Docs**
 
-- README, `app/docs/`, docstrings, comments and CONTRIBUTING describe the new behaviour; comments
-  explain why; stale comments updated.
+- README, `docs/`, `app/docs/`, docstrings, comments and CONTRIBUTING describe the new behaviour;
+  comments explain why, in a line or two; stale comments updated.
+- Errors raised with their fixed `message`; specifics in `detail`.
 
 **Conventions and hygiene**
 
@@ -69,7 +75,8 @@ completeness and scope.
 
 **Release**
 
-- `version` bumped exactly once versus `upstream/dev`, `uv.lock` matches, Conventional Commit
+- `version` raised by exactly one step versus `upstream/dev` (the right one of minor, patch or
+  major), `uv.lock` matches, Conventional Commit
   messages with real bodies.
 
 ## Verify, do not assume
@@ -85,7 +92,7 @@ Run the targeted tests and the full suite (`run-tests`). For each suspicion, try
 approve | changes required
 
 ## Findings (most severe first)
-1. [blocking|should-fix|nit] app/pesu.py:212 — <problem>. Failure scenario: <inputs → wrong result>. Fix: <suggestion>.
+1. [blocking|should-fix|nit] `app/pesu.py:212`: <problem>. Failure scenario: <inputs → wrong result>. Fix: <suggestion>.
 
 ## Checked and fine
 - <area>: <how verified>
