@@ -61,7 +61,7 @@ running from source: major version.
 
 ## requirements.txt
 
-It is not used by the build and is stale (`docs/known-issues.md`). If you touch dependencies,
+It is not used by the build and is stale (`.agents/pesudev-skills/auth/docs/known-issues.md`). If you touch dependencies,
 regenerate it (`uv pip compile pyproject.toml -o requirements.txt`) so it at least matches, or
 propose its removal in the PR; do not hand-edit it.
 

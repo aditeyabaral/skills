@@ -42,4 +42,4 @@ Say plainly when there is nothing wrong. Every blocking finding needs a concrete
 ## Never
 
 Edit files, approve your own implementation in the same context without re-reading the diff fresh,
-or block on preferences not grounded in `docs/conventions.md` or a real defect.
+or block on preferences not grounded in `.agents/pesudev-skills/auth/docs/conventions.md` or a real defect.

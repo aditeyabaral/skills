@@ -81,7 +81,7 @@ async def test_x(mock_get, pesu, collector):
 ```
 
 Stacked `@patch` decorators inject bottom-up. Mock upstream HTML with small strings containing the
-real selectors (`docs/upstream.md`) and fake values only.
+real selectors (`.agents/pesudev-skills/auth/docs/upstream.md`) and fake values only.
 
 ## 3. What to assert
 

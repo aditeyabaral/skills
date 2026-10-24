@@ -35,7 +35,7 @@ description: Bring pesu-auth documentation in step with behaviour - README secti
 ## Rules
 
 - Document only what the code does. If the docs and code disagree and the task is not about that,
-  note it in `docs/known-issues.md` in pesu-dev/skills or the PR rather than guessing.
+  note it in `.agents/pesudev-skills/auth/docs/known-issues.md` in pesu-dev/skills or the PR rather than guessing.
 - Do not reorganise README sections as a side effect of another change.
 - Never include real credentials, tokens or personal data in examples.
 - Doc-only changes still bump the version (every PR does): `docs:` commit type.

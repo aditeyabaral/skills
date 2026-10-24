@@ -111,7 +111,7 @@ what was **not** logged (for example that a password never appears).
 - Metric assertions when a code path records metrics (`tests/unit/test_metrics_instrumentation.py`
   asserts upstream and cache metrics path by path).
 - OpenAPI tests pass unchanged for a new route; they will fail if docs are missing (see
-  `docs/api-contract.md`).
+  `.agents/pesudev-skills/auth/docs/api-contract.md`).
 - A live test (`secret_required`) only when behaviour depends on the real PESU page, and never with
   assertions on personal values other than those supplied in `TEST_*` variables.
 
@@ -131,4 +131,4 @@ what was **not** logged (for example that a password never appears).
 `.agents/pesudev-skills` submodule for the latter; `tests/unit/test_sync_agents.py` also compares
 the committed `.github/agents/` with the submodule, and skips that one test when the submodule is
 not checked out. Secrets are present on pushes to the base repository, not on fork PRs. See
-`docs/ci-cd.md`.
+`.agents/pesudev-skills/auth/docs/ci-cd.md`.

@@ -53,7 +53,7 @@ Read `.agents/pesudev-skills/auth/docs/upstream.md` first. All scraping is in `a
    Run it from the repo root with `PYTHONPATH=. uv run python /path/outside/repo/capture.py`
    (`PYTHONPATH=.` so the script can import `app`).
 
-1. Compare the structure with the selectors in `docs/upstream.md`. Change the minimum: a selector,
+1. Compare the structure with the selectors in `.agents/pesudev-skills/auth/docs/upstream.md`. Change the minimum: a selector,
    `PROFILE_PAGE_HEADER_TO_KEY_MAP`, the node count, or the login-failure marker.
 
 1. Update the unit-test HTML in `tests/unit/test_pesu.py` to the new structure (fake values), and keep

@@ -30,7 +30,7 @@ exists.
 | Docs                       | README/Swagger wrong or missing                                   | `update-docs`                                           |
 | Refactor                   | no behaviour change intended                                      | `refactor`                                              |
 
-Decide if it is **breaking** (`docs/api-contract.md`). If it is and the request did not say so,
+Decide if it is **breaking** (`.agents/pesudev-skills/auth/docs/api-contract.md`). If it is and the request did not say so,
 escalate before planning.
 
 ## 3. Reproduce (bugs)

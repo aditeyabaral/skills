@@ -62,7 +62,7 @@ the `finally` comment in `record_request_metrics`.
   deserve a traceback (5xx, unexpected exceptions).
 - The username (`user=...`) and the profile are logged at INFO by design, for tracing a login; do
   not remove them. Do not add logging of tokens or of personal data beyond those; see
-  `docs/security.md`.
+  `.agents/pesudev-skills/auth/docs/security.md`.
 
 ## API style
 
@@ -73,7 +73,7 @@ the `finally` comment in `record_request_metrics`.
 - Every error body is `{status: false, message, timestamp}`. Raise a `PESUAcademyError` subclass to
   produce one; never build error `JSONResponse`s in routes.
 - Every route has `tags=[...]`, `responses=<docs>.response_examples`, a docstring (it becomes the
-  OpenAPI description) and a docs module in `app/docs/`. See `docs/api-contract.md`.
+  OpenAPI description) and a docs module in `app/docs/`. See `.agents/pesudev-skills/auth/docs/api-contract.md`.
 
 ## Naming
 

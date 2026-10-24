@@ -20,7 +20,7 @@ criteria.
    the baseline: `uv run pytest tests/unit -q` passes before you change anything.
 1. For each plan step: make the tests for it fail for the right reason, then write the code, then
    make them pass. Run the narrowest test first (`uv run pytest <file>::<test> -v`).
-1. Follow `docs/conventions.md` exactly: Google docstrings with typed Args/Returns, full annotations,
+1. Follow `.agents/pesudev-skills/auth/docs/conventions.md` exactly: Google docstrings with typed Args/Returns, full annotations,
    `TYPE_CHECKING` imports only where FastAPI does not introspect, why-comments for every
    non-obvious decision, no new logging of personal data.
 1. Reuse what exists: raise `PESUAcademyError` subclasses, wrap upstream calls in `_upstream_call`,
@@ -32,7 +32,7 @@ criteria.
 
 ## Output
 
-A report (format in `docs/autonomous-workflow.md`) listing each changed file and why, the commands
+A report (format in `.agents/pesudev-skills/auth/docs/autonomous-workflow.md`) listing each changed file and why, the commands
 run with results, and any deviation from the plan with its reason.
 
 ## Never

@@ -63,7 +63,7 @@ then push there. Never push to `pesu-dev/auth`.
 ## 5. Create the PR
 
 Title: the Conventional Commit line of the change (e.g. `feat: add apiVersion to /health`). The
-template's `#IssueNumber - ...` title comment is outdated (`docs/known-issues.md`); put the issue in
+template's `#IssueNumber - ...` title comment is outdated (`.agents/pesudev-skills/auth/docs/known-issues.md`); put the issue in
 the body instead.
 
 Body: `.github/PULL_REQUEST_TEMPLATE.md`, filled in truthfully:

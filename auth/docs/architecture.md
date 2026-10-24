@@ -59,7 +59,7 @@ time. Keep it that way: never capture the singletons in a closure or default arg
    1. If the response contains `div.login-form`, the login failed → `AuthenticationError` (401).
    1. Reads the post-login `meta[name='csrf-token']`, or raises `CSRFTokenError` (502).
    1. If `profile=True`, `get_profile_information()` GETs `/Academy/s/studentProfilePESUAdmin`
-      and parses it (see `docs/upstream.md`), then filters to `fields` if they differ from
+      and parses it (see `.agents/pesudev-skills/auth/docs/upstream.md`), then filters to `fields` if they differ from
       `DEFAULT_FIELDS`.
    1. `finally`: closes the per-request client with `_close_client_quietly`.
 1. **Route** records `AUTHENTICATION_RESULTS{result}`, validates the dict into `ResponseModel`,
@@ -115,7 +115,7 @@ response to the yielded sink. It records `upstream_requests_total{operation,outc
 `error`, `cancelled`), `upstream_latency_seconds{operation}` and, when a response exists,
 `upstream_responses_total{operation,status}`. Operations today: `csrf_fetch`, `login`,
 `profile_fetch`. A new upstream call needs a new operation name and the README and docs updates
-listed in `docs/metrics.md`.
+listed in `.agents/pesudev-skills/auth/docs/metrics.md`.
 
 HTML parsing runs in a thread (`await asyncio.to_thread(HTMLParser, text)`) so a large page cannot
 block the event loop. Keep that for any new parsing.

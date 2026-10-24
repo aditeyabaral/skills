@@ -25,7 +25,7 @@ relevant.
 - **Timing attacks on the metrics token.** `secrets.compare_digest` on bytes (header latin-1,
   configured token utf-8 surrogateescape). Do not replace with `==`, and do not compare `str`s
   (non-ASCII input would raise and become a 500).
-- **Metric label cardinality (memory DoS).** Labels are clamped to closed sets; see `docs/metrics.md`.
+- **Metric label cardinality (memory DoS).** Labels are clamped to closed sets; see `.agents/pesudev-skills/auth/docs/metrics.md`.
 - **Mass assignment / unexpected input.** `RequestModel` is strict with `extra="forbid"`.
 - **Information disclosure in errors.** 500s return a generic message; details go to logs only.
   Upstream error text is never forwarded to the caller.

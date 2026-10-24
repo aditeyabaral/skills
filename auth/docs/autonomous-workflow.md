@@ -19,7 +19,7 @@ unmerged PR branch.
 
 ## Stop and hand back to a human when
 
-- the change is **breaking** (see `docs/api-contract.md`) and the request did not explicitly ask
+- the change is **breaking** (see `.agents/pesudev-skills/auth/docs/api-contract.md`) and the request did not explicitly ask
   for a breaking change;
 - the change touches security-sensitive behaviour in a way the request did not spell out (auth,
   logging of personal data, the metrics token), or a vulnerability is found (report privately);
@@ -42,7 +42,7 @@ report described below with the exact question or blocker.
 | 2   | Plan         | `planner`                                                | area skill (`add-endpoint`, `update-scraper`, ...) | Written plan: files to change, tests to add, docs to update, version impact, risks                            |
 | 3   | Set up       | `implementer`                                            | `setup-environment`                                | Clean branch from `upstream/dev`, baseline tests green                                                        |
 | 4   | Test first   | `test-engineer`                                          | `write-tests`                                      | New tests written and failing for the right reason                                                            |
-| 5   | Implement    | `implementer` (+ `scraper-specialist` for upstream work) | area skill                                         | Tests pass; code follows `docs/conventions.md`                                                                |
+| 5   | Implement    | `implementer` (+ `scraper-specialist` for upstream work) | area skill                                         | Tests pass; code follows `.agents/pesudev-skills/auth/docs/conventions.md`                                    |
 | 6   | Verify       | `test-engineer`                                          | `run-tests`, `run-locally`                         | Full suite green with coverage ≥ 95% (keep 100%), lint clean, app and Docker smoke pass, live run if relevant |
 | 7   | Document     | `docs-writer`                                            | `update-docs`                                      | README, OpenAPI docs, CONTRIBUTING and comments match behaviour                                               |
 | 8   | Review       | `reviewer`, `security-auditor`                           | `review-change`, `security-review`                 | No blocking findings; every finding fixed or explicitly justified                                             |

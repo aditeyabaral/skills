@@ -19,8 +19,9 @@ If `.agents/pesudev-skills` is empty, run `git submodule update --init` first.
 | Reference docs          | `.agents/pesudev-skills/auth/docs/<name>.md`   | Deep background, read on demand                  |
 | Roles                   | `.agents/pesudev-skills/auth/agents/<role>.md` | Personas for each phase of autonomous work       |
 
-Short references such as `docs/testing.md` in this file, the skills and the roles always mean
-`.agents/pesudev-skills/auth/docs/testing.md`; any other path is relative to the repository root.
+This file, the skills and the roles always name the reference docs in full
+(`.agents/pesudev-skills/auth/docs/<name>.md`). Every other path is relative to the repository
+root, so `docs/<name>.md` is the repository's own documentation, not a reference doc.
 
 Never edit `AGENTS.md` or `.agents/` in this repository. They come from
 pesu-dev/skills; changes go there as a PR. Never edit `.github/agents/` by hand either: it is
@@ -66,20 +67,20 @@ Details: `.agents/pesudev-skills/auth/docs/architecture.md`.
 
 1. **Never log, print, store or echo a password, token or new personal data.** Not in logs,
    exceptions, metrics labels, test output, commits, PRs or reports. The username and profile are
-   logged at INFO by design, for tracing; that is not a defect. (`docs/security.md`)
+   logged at INFO by design, for tracing; that is not a defect. (`.agents/pesudev-skills/auth/docs/security.md`)
 1. **Errors are exceptions.** Raise a `PESUAcademyError` subclass; the handlers render
    `{status, message, timestamp}`. Validation failures are 400, never 422 (422 means the profile
    page could not be parsed).
 1. **The API contract is camelCase, strict and documented.** Models use `alias_generator=to_camel`,
    `strict=True`, and request models `extra="forbid"`. Every route has tags, a docstring and an
-   `app/docs/` module; `tests/unit/test_openapi_docs.py` enforces it. (`docs/api-contract.md`)
+   `app/docs/` module; `tests/unit/test_openapi_docs.py` enforces it. (`.agents/pesudev-skills/auth/docs/api-contract.md`)
 1. **Every upstream call** goes through `_upstream_call` and every `httpx2.AsyncClient` is closed on
-   every path, including cancellation. (`docs/architecture.md`)
-1. **Metric labels are bounded** and each fact is recorded in exactly one layer. (`docs/metrics.md`)
+   every path, including cancellation. (`.agents/pesudev-skills/auth/docs/architecture.md`)
+1. **Metric labels are bounded** and each fact is recorded in exactly one layer. (`.agents/pesudev-skills/auth/docs/metrics.md`)
 1. **Code style is enforced**: Google docstrings and full annotations on everything in `app/`,
-   ruff with line length 120, comments explain *why*. (`docs/conventions.md`)
+   ruff with line length 120, comments explain *why*. (`.agents/pesudev-skills/auth/docs/conventions.md`)
 1. **Tests**: add tests with every change, keep coverage at 100% (gate 95%), follow the fixture
-   recipes in `docs/testing.md`.
+   recipes in `.agents/pesudev-skills/auth/docs/testing.md`.
 1. **Live tests use one PESU session**: never run two live test runs at once, never with `-n`.
    A run without credentials is partial and must be reported as partial.
 1. **Every PR bumps `version` in `pyproject.toml` exactly once** and runs `uv lock`. Minor by
@@ -93,7 +94,7 @@ Fork → branch from `upstream/dev` → change + tests → pre-commit green → 
 `pesu-dev/auth` **`dev`** from the fork (never from `main`, never to `main`). Conventional Commits
 (`feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `chore:`, `!` for breaking) with bodies that explain
 why. Merges to `dev` deploy to staging; production is deployed manually by maintainers.
-(`docs/ci-cd.md`)
+(`.agents/pesudev-skills/auth/docs/ci-cd.md`)
 
 ## Working autonomously
 

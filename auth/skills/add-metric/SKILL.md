@@ -77,5 +77,5 @@ curl -s localhost:5000/metrics | grep foo_total
 curl -s "localhost:5000/metrics?fmt=json" | python -m json.tool | grep -A3 foo
 ```
 
-Check the invariants in `docs/metrics.md` still hold on the numbers you see. Renaming or removing a
+Check the invariants in `.agents/pesudev-skills/auth/docs/metrics.md` still hold on the numbers you see. Renaming or removing a
 metric breaks dashboards: call it out in the PR.

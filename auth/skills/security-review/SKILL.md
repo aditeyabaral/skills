@@ -18,7 +18,7 @@ exception message, a metric label, a response field or a file, note what data ca
 | Question                                                           | How to check                                                                                                                          |
 | ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------- |
 | Can a password reach a log, exception message, metric or response? | Follow `password`/`j_password`/body from `RequestModel` to every sink; check `logging.*` calls and f-strings in the diff              |
-| Is any new personal data (name, email, phone, PRN) logged?         | Search 1 below; the INFO username and profile logs are deliberate (`docs/security.md`), not findings                                  |
+| Is any new personal data (name, email, phone, PRN) logged?         | Search 1 below; the INFO username and profile logs are deliberate (`.agents/pesudev-skills/auth/docs/security.md`), not findings      |
 | Are tokens (CSRF, METRICS_TOKEN, cookies) logged or returned?      | Same search; never log them                                                                                                           |
 | Could two callers share a session?                                 | Clients taken from the cache under the lock and closed after one login (`change-upstream-client`)                                     |
 | Is new input validated strictly?                                   | Pydantic model with `strict=True`, `extra="forbid"`; lengths or formats constrained where it matters                                  |

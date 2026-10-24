@@ -22,7 +22,7 @@ fragments. Background: `.agents/pesudev-skills/auth/docs/architecture.md`.
 | Where is a metric recorded?                 | `rg -n "<CONSTANT_NAME>" app`                                                                           |
 | What does Swagger show?                     | `app/docs/<route>.py`, route decorators in `app/app.py`                                                 |
 | How are tests run in CI?                    | `.pre-commit-config.yaml` (the `pytest` hook), `scripts/run_tests.py`                                   |
-| What does CI check?                         | `.github/workflows/*.yaml`, `docs/ci-cd.md`                                                             |
+| What does CI check?                         | `.github/workflows/*.yaml`, `.agents/pesudev-skills/auth/docs/ci-cd.md`                                 |
 | Where do Copilot's custom agents come from? | Generated into `.github/agents/` from `.agents/pesudev-skills/auth/agents/` by `scripts/sync_agents.py` |
 | How is the image built?                     | `Dockerfile`                                                                                            |
 | Contribution rules                          | `.github/CONTRIBUTING.md`, `.github/PULL_REQUEST_TEMPLATE.md`                                           |
@@ -47,12 +47,12 @@ Commit messages in this repo explain *why* in depth. When code looks strange, `g
 - **Any `/authenticate` change:** `app/models/request.py` → `app/app.py::authenticate` →
   `app/pesu.py::authenticate` → `app/models/response.py` → `app/docs/authenticate.py` → tests
   `tests/unit/test_app_unit.py`, `tests/unit/test_pesu.py`, `tests/integration/test_app_integration.py`.
-- **Scraping:** `docs/upstream.md` → `app/pesu.py::get_profile_information` → `tests/unit/test_pesu.py`
+- **Scraping:** `.agents/pesudev-skills/auth/docs/upstream.md` → `app/pesu.py::get_profile_information` → `tests/unit/test_pesu.py`
   (HTML fixtures) → `tests/functional/`.
-- **Metrics:** `docs/metrics.md` → `app/metrics/collector.py` → the recording site → `app/models/metrics.py`
+- **Metrics:** `.agents/pesudev-skills/auth/docs/metrics.md` → `app/metrics/collector.py` → the recording site → `app/models/metrics.py`
   → `app/docs/metrics.py` → `tests/unit/test_metrics_*.py`.
 - **Errors:** `app/exceptions/` → handlers in `app/app.py` → `tests/unit/test_app_unit.py`.
-- **Concurrency/lifecycle:** `docs/architecture.md` (client lifecycle) → `app/pesu.py` top to bottom →
+- **Concurrency/lifecycle:** `.agents/pesudev-skills/auth/docs/architecture.md` (client lifecycle) → `app/pesu.py` top to bottom →
   `lifespan` in `app/app.py` → the `*closes*`/`*prefetch*` tests in `tests/unit/test_pesu.py`.
 
 ## Checking your understanding

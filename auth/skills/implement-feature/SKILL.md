@@ -87,7 +87,7 @@ Repeat until the review is clean. Three failed rounds on the same finding → ha
 
 ## Phase 8: Release prep (role: `release-manager`)
 
-1. Walk the definition of done in `docs/autonomous-workflow.md`; every box must be true.
+1. Walk the definition of done in `.agents/pesudev-skills/auth/docs/autonomous-workflow.md`; every box must be true.
 1. Load `bump-version` (once per PR).
 1. Load `open-pull-request`: rebase on `upstream/dev`, final `pre-commit`, push to the fork, open
    the PR to `dev`.
@@ -99,6 +99,6 @@ not run the live tests in CI; state in the PR whether you ran them locally.
 
 ## Final report
 
-Use the report format in `docs/autonomous-workflow.md`: outcome, changes, verification with real
+Use the report format in `.agents/pesudev-skills/auth/docs/autonomous-workflow.md`: outcome, changes, verification with real
 counts (say "partial" when live tests did not run), PR URL, open items. Never report a check you did
 not run as passing.

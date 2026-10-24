@@ -26,7 +26,7 @@ uv sync --all-groups             # creates .venv with Python 3.14 and the dev gr
 ```
 
 `uv sync` downloads Python 3.14 itself if needed (`requires-python = ">=3.14"`). Do not use
-`pip install -r requirements.txt`: that file is stale (see `docs/known-issues.md`).
+`pip install -r requirements.txt`: that file is stale (see `.agents/pesudev-skills/auth/docs/known-issues.md`).
 
 ## 3. Credentials for live tests (optional)
 

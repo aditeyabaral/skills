@@ -6,7 +6,7 @@ description: Add a new failure mode to pesu-auth as a PESUAcademyError subclass 
 # Adding an error type
 
 Error handling rules: `.agents/pesudev-skills/auth/docs/architecture.md` (Error handling) and
-`docs/api-contract.md` (status codes).
+`.agents/pesudev-skills/auth/docs/api-contract.md` (status codes).
 
 ## 1. Choose the status
 

@@ -59,7 +59,7 @@ async def foo() -> JSONResponse:
   same way (`HTTPBearer(auto_error=False)` + raising a `PESUAcademyError`) so the 401 keeps this
   API's body and is counted.
 - Names used in the signature must be importable at runtime (the `TYPE_CHECKING` trap in
-  `docs/conventions.md`).
+  `.agents/pesudev-skills/auth/docs/conventions.md`).
 
 ## 4. Metrics
 

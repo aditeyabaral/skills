@@ -31,7 +31,7 @@ completeness and scope.
 - Async: no blocking calls on the event loop (parsing in `to_thread`), no lock held across an await
   on upstream, background tasks strong-referenced and their exceptions retrieved.
 
-**API contract** (`docs/api-contract.md`)
+**API contract** (`.agents/pesudev-skills/auth/docs/api-contract.md`)
 
 - camelCase on the wire, strict models, `extra="forbid"` on requests.
 - Status codes follow the table; errors raised as `PESUAcademyError` subclasses; standard error body.
@@ -42,7 +42,7 @@ completeness and scope.
 - Clients closed exactly once on every path; one client per login; `_upstream_call` around every
   upstream request.
 
-**Metrics** (`docs/metrics.md`), if recording changed
+**Metrics** (`.agents/pesudev-skills/auth/docs/metrics.md`), if recording changed
 
 - Bounded labels; one fact in one family; registry, JSON model, both doc examples and README all
   updated; invariants still hold.
@@ -51,7 +51,7 @@ completeness and scope.
 
 - No passwords, tokens or new personal data in logs, messages, labels or responses.
 
-**Tests** (`docs/testing.md`)
+**Tests** (`.agents/pesudev-skills/auth/docs/testing.md`)
 
 - New behaviour and each new branch tested; regression test for a bug; assertions meaningful (not
   after a raise, not on a mock); fresh collectors; no network in unit tests; coverage not reduced.
