@@ -123,8 +123,8 @@ The schema is cached on `app.openapi_schema`. Tests reset it with `app.openapi_s
   open. `tests/unit/test_docs.py` fails if `docs/development.md` misses one.
 - `.env` is read by the test suite and the benchmark scripts only, never by the app.
 - The Docker image (`Dockerfile`) is `python:3.14-slim-trixie`, installs from the lock with
-  `uv sync --locked --no-dev`, copies only `app/` into the runtime stage, runs as UID 10001, and starts
-  `python -m app.app`.
+  `uv sync --locked --no-dev`, copies only the virtualenv and `app/` into the runtime stage, runs as
+  UID 10001, and starts `python -m app.app`.
 
 ## Scaling limits to keep in mind
 

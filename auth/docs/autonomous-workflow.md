@@ -7,8 +7,8 @@ this document; this file is the reference for the rules and the role handoffs.
 ## Boundaries
 
 An agent working autonomously **may**: read anything in the repo; create branches; edit code, tests
-and docs; run the app, the tests (live tests once, never alongside another live run), linters, Docker builds and
-benchmarks against a local instance; commit; push **to the contributor's fork**; open a PR from the
+and docs; run the app, the tests (live tests once, never alongside another live run), linters,
+Docker builds and benchmarks against a local instance; commit; push **to the contributor's fork**; open a PR from the
 fork to `pesu-dev/auth` `dev`; read CI results and push fixes to its own PR branch.
 
 An agent **must not**: push to `pesu-dev/auth` or to any `dev`/`main` branch; merge, approve or
@@ -19,8 +19,8 @@ unmerged PR branch.
 
 ## Stop and hand back to a human when
 
-- the change is **breaking** (see `.agents/pesudev-skills/auth/docs/api-contract.md`) and the request did not explicitly ask
-  for a breaking change;
+- the change is **breaking** (see `.agents/pesudev-skills/auth/docs/api-contract.md`) and the
+  request did not explicitly ask for a breaking change;
 - the change touches security-sensitive behaviour in a way the request did not spell out (auth,
   logging of personal data, the metrics token), or a vulnerability is found (report privately);
 - the work needs a new secret, environment variable, infrastructure, workflow permission, or a new
@@ -28,8 +28,8 @@ unmerged PR branch.
 - the request is ambiguous in a way that changes the design, and the codebase does not settle it;
 - the same check still fails after **three** honest fix attempts;
 - PESU Academy is down or behaving differently, so the change cannot be verified live;
-- live credentials are needed and absent for a change to `app/pesu.py` or `app/models/upstream.py` (finish everything else and
-  say the live verification is outstanding).
+- live credentials are needed and absent for a change to `app/pesu.py` or
+  `app/models/upstream.py` (finish everything else and say the live verification is outstanding).
 
 "Hand back" means: stop making changes, leave the branch in a clean, committed state, and write the
 report described below with the exact question or blocker.

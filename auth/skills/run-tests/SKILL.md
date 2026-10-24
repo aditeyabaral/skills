@@ -17,10 +17,12 @@ description: Run the pesu-auth test suites correctly - targeted pytest, the cano
 | Live tests only                  | `uv run pytest -m secret_required -v`                                              |
 | All hooks incl. tests            | `uv run pre-commit run --all-files`                                                |
 
-`scripts/run_tests.py` loads `.env` and runs `pytest --cov --cov-report=term-missing --disable-warnings -v -s`, with coverage configured in `pyproject.toml` (`app/`, `scripts/`,
-`.github/scripts/`, branches counted, fail under 100%). It deselects the live tests and warns
-**"Live PESU tests skipped"** unless `TEST_EMAIL`, `TEST_PRN`, `TEST_SRN`, `TEST_MOBILE` and
-`TEST_PASSWORD` are all set. The tests need the `benchmark` group too (`uv sync --all-groups`).
+`scripts/run_tests.py` loads `.env` and runs
+`pytest --cov --cov-report=term-missing --disable-warnings -v -s`, with coverage configured in
+`pyproject.toml` (`app/`, `scripts/`, `.github/scripts/`, branches counted, fail under 100%). It
+deselects the live tests and warns **"Live PESU tests skipped"** unless `TEST_EMAIL`, `TEST_PRN`,
+`TEST_SRN`, `TEST_MOBILE` and `TEST_PASSWORD` are all set. The tests need the `benchmark` group too
+(`uv sync --all-groups`).
 
 ## The live tests
 

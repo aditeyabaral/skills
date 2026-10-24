@@ -53,7 +53,7 @@ and the rules for values. The requests are in `app/pesu.py`; the response shapes
            token = login.json()["accessToken"]
            headers = {**MOBILE_HEADERS, "Authorization": f"Bearer {token}"}
            profile = await client.post(DISPATCHER_URL, files=_multipart(PROFILE_FORM), headers=headers)
-       # Redact before writing: replace every personal value and the tokens with invented ones
+       # The raw response: real personal data, kept outside the repository
        with open("/path/outside/repo/profile.json", "w") as f:
            json.dump(profile.json(), f, indent=2)
 
@@ -62,8 +62,9 @@ and the rules for values. The requests are in `app/pesu.py`; the response shapes
    ```
 
    Run it from the repo root with `PYTHONPATH=. uv run python /path/outside/repo/capture.py`
-   (`PYTHONPATH=.` so the script can import `app`). Redact the file before reading it into any
-   conversation, report or log.
+   (`PYTHONPATH=.` so the script can import `app`). The file holds the account's real data: redact
+   it (replace every personal value with an invented one) before reading it into any conversation,
+   report or log, and delete the raw copy when you are done.
 
 1. Compare the shape with the models in `app/models/upstream.py`. Change the minimum: a URL, a form
    value, a field alias, a block. Keep the comments that say where each value was observed.

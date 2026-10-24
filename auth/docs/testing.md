@@ -14,9 +14,10 @@ layout, the coverage rules, the live tests and the benchmarks are described in t
 | `tests/integration/test_app_integration.py`        | The full app through `TestClient`, with its real lifespan                                                                                                                                                                        | **Live**                     |
 | `tests/conftest.py`                                | `load_dotenv()`, `PROFILE_VARIABLES` (one `TEST_*` variable per profile field), the live-profile checks, the autouse `_metrics_token_unset`, and the forced order unit → functional → integration                                |                              |
 
-The tests marked `@pytest.mark.secret_required` log in with the `TEST_*` account from `.env`, and the
-ones that fetch a profile compare every field with its variable. The other functional and integration tests still
-call pesuacademy.com (with invalid credentials), so only `tests/unit/` runs offline.
+The tests marked `@pytest.mark.secret_required` log in with the `TEST_*` account from `.env`, and
+the ones that fetch a profile compare every field with its variable. The other functional and
+integration tests still call pesuacademy.com (with invalid credentials), so only `tests/unit/` runs
+offline.
 
 ## Running
 
@@ -133,8 +134,7 @@ cleanup (`test_a_cancellation_during_the_close_still_closes`).
 - Put assertions about an exception after its `with pytest.raises(...) as exc_info:` block, never
   inside it, where they do not run.
 - Tests are linted by ruff like the rest of the code, except that annotations and docstrings are not
-  required (`ANN` and `D1` are ignored under `tests/`). A docstring that says why a test exists is
-  still welcome.
+  required (`ANN` and `D1` are ignored under `tests/`).
 - File and function names start with `test_` (the `name-tests-test` hook); name tests for the
   behaviour: `test_a_redirect_is_not_followed`, not `test_login_3`.
 
@@ -146,15 +146,16 @@ cleanup (`test_a_cancellation_during_the_close_still_closes`).
   asserts the upstream and client metrics path by path).
 - The OpenAPI and contract tests pass unchanged for a new route; they fail if its docs are missing
   (see `.agents/pesudev-skills/auth/docs/api-contract.md`).
-- `tests/unit/test_docs.py` passes: a new error class, CLI option, environment variable or file path
-  named in `docs/` must be reflected there.
+- `tests/unit/test_docs.py` passes: a new error class, CLI option or environment variable must be
+  in the tables in `docs/`, and every path a `docs/` page names must exist.
 - A live test (`secret_required`) only when behaviour depends on PESU's real responses, and never
   with assertions on personal values other than those supplied in `TEST_*` variables.
 
 ## CI
 
 The *CI Checks* workflow (`.github/workflows/ci_checks.yml`) runs the hooks in its *Pre-commit
-hooks* job with `SKIP=pytest`, and the tests in *Test suite & coverage* (`uv sync --locked --all-groups`, then `scripts/run_tests.py`). The `TEST_*` secrets reach that job only on pushes to
-`dev`, never on fork PRs. `tests/unit/test_sync_agents.py` compares the committed `.github/agents/`
-with the submodule and skips that one test when the submodule is not checked out. See
-`.agents/pesudev-skills/auth/docs/ci-cd.md`.
+hooks* job with `SKIP=pytest`, and the tests in *Test suite & coverage*
+(`uv sync --locked --all-groups`, then `scripts/run_tests.py`). The `TEST_*` secrets reach that job
+on pushes to `dev`, never on fork PRs. `tests/unit/test_sync_agents.py` compares the committed
+`.github/agents/` with the submodule, and skips that one test when the submodule is not checked out.
+See `.agents/pesudev-skills/auth/docs/ci-cd.md`.

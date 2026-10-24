@@ -50,8 +50,9 @@ library behaviour behind it. Examples worth imitating: the `_close_client_quietl
 `cancelled` comment in `_upstream_call` (`app/pesu.py`), the `compare_digest` byte-encoding comment
 in `app/metrics/auth.py`, the `finally` comment in `record_request_metrics`.
 
-- Write that kind of comment for every non-obvious decision you make, and keep a new one to a line or
-  two: the why only, not an essay on the alternatives. Maintainers ask for long ones to be trimmed.
+- Write that kind of comment for every non-obvious decision you make, but shorter than those
+  examples: a line or two, the why only, not an essay on the alternatives. Maintainers ask for long
+  new comments to be trimmed.
 - Do not narrate code (`# increment the counter`), and remove a comment that adds nothing.
 - When you change behaviour a comment describes, update the comment in the same change.
 

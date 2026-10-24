@@ -53,7 +53,7 @@ The 17 profile fields, in order: `name`, `prn`, `srn`, `program`, `branch`, `sem
 
 ## Error body and status codes
 
-Every non-2xx is rendered by one of this API's exception handlers as:
+Every error (4xx and 5xx) is rendered by one of this API's exception handlers as:
 
 ```json
 {"status": false, "message": "<fixed, documented text>", "timestamp": "2024-07-28T22:30:10.103368+05:30"}
@@ -66,7 +66,7 @@ Every non-2xx is rendered by one of this API's exception handlers as:
 | 404  | No route serves the path                                           | `RouteNotFoundError`, from `http_error_handler`                                                                 |
 | 405  | The path is not served for the method                              | `MethodNotAllowedError` (+ an `Allow` header naming every method the path serves)                               |
 | 422  | The profile response could not be parsed: PESU's API changed       | `ProfileParseError`                                                                                             |
-| 500  | Our bug, or a result that failed `ResponseModel` validation        | the catch-all handler; generic message                                                                          |
+| 500  | Our bug, or a result that failed `ResponseModel` validation        | the catch-all handler, or the route's own `PESUAcademyError(status_code=500)`; generic message                  |
 | 502  | PESU Academy unreachable, timed out, declined, or answered oddly   | `UpstreamError` (the login), `ProfileFetchError` (the profile)                                                  |
 
 The message is part of the contract: it is the exception's fixed default. Specifics, such as the
