@@ -23,7 +23,8 @@ not, add characterisation tests first, in a separate commit.
 - Small steps, each leaving the suite green. Commit each step (`refactor: ...`).
 - Keep public names that tests or docs refer to, or update every reference (`rg -n "<name>"`).
 - Keep the patch points tests rely on: `app.app.metrics`, `app.app.pesu_academy`,
-  `app.metrics.auth.METRICS_TOKEN`, `app.pesu.httpx2.AsyncClient.get/post` are patched by name.
+  `app.metrics.auth.METRICS_TOKEN`, `app.pesu.httpx2.AsyncClient` (the `wire` fixture) and
+  `app.pesu.httpx2.AsyncClient.post` (the `upstream` fixture) are patched by name.
   Moving them breaks tests silently or loudly; update the tests in the same commit if you must.
 - Preserve every why-comment that still applies; move it with the code.
 - Do not mix in behaviour changes or dependency upgrades. If you find a bug, note it and fix it in a
@@ -42,4 +43,4 @@ Also compare `/metrics` output for the same requests before and after if the ref
 middleware, handlers or `app/pesu.py`. For `app/pesu.py` concurrency code, follow
 `change-upstream-client` as well.
 
-Version: a refactor still needs the per-PR minor bump.
+Version: a refactor still needs the per-PR version bump (`bump-version`).

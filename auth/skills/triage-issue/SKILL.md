@@ -13,24 +13,21 @@ gh issue list --repo pesu-dev/auth --search "<keywords>" --state all   # duplica
 gh pr list --repo pesu-dev/auth --search "<keywords>" --state all      # already being fixed?
 ```
 
-Note: the bug template's "HTML rendering (`app/util.py`)" option refers to a file that no longer
-exists.
-
 ## 2. Classify
 
-| Type                       | Signals                                                           | Next skill                                              |
-| -------------------------- | ----------------------------------------------------------------- | ------------------------------------------------------- |
-| Bug                        | wrong status/body, 500, crash, leak                               | `fix-bug`                                               |
-| Upstream change            | 422s, CSRF 502s, sudden 401s for valid users, parse-error metrics | `update-scraper` (via `diagnose-production` if in prod) |
-| Feature: new route         | "add an endpoint"                                                 | `add-endpoint`                                          |
-| Feature: fields/validation | new request option, new response/profile field                    | `change-api-models`, `update-scraper`                   |
-| Observability              | "we can't see X"                                                  | `add-metric`                                            |
-| Dependencies/tooling       | upgrade, Python version, pre-commit                               | `update-dependencies`                                   |
-| CI                         | a workflow fails or needs changing                                | `fix-ci`                                                |
-| Docs                       | README/Swagger wrong or missing                                   | `update-docs`                                           |
-| Refactor                   | no behaviour change intended                                      | `refactor`                                              |
+| Type                       | Signals                                                                                          | Next skill                                              |
+| -------------------------- | ------------------------------------------------------------------------------------------------ | ------------------------------------------------------- |
+| Bug                        | wrong status/body, 500, crash, leak                                                              | `fix-bug`                                               |
+| Upstream change            | 422s, unexpected 502s, sudden 401s for valid users, nulls where values were, parse-error metrics | `update-scraper` (via `diagnose-production` if in prod) |
+| Feature: new route         | "add an endpoint"                                                                                | `add-endpoint`                                          |
+| Feature: fields/validation | new request option, new response/profile field                                                   | `change-api-models`, `update-scraper`                   |
+| Observability              | "we can't see X"                                                                                 | `add-metric`                                            |
+| Dependencies/tooling       | upgrade, Python version, pre-commit                                                              | `update-dependencies`                                   |
+| CI                         | a workflow fails or needs changing                                                               | `fix-ci`                                                |
+| Docs                       | README/Swagger wrong or missing                                                                  | `update-docs`                                           |
+| Refactor                   | no behaviour change intended                                                                     | `refactor`                                              |
 
-Decide if it is **breaking** (`docs/api-contract.md`). If it is and the request did not say so,
+Decide if it is **breaking** (`.agents/pesudev-skills/auth/docs/api-contract.md`). If it is and the request did not say so,
 escalate before planning.
 
 ## 3. Reproduce (bugs)

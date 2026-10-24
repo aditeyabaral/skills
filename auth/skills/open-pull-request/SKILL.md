@@ -5,8 +5,8 @@ description: Turn a finished pesu-auth branch into a pull request - Conventional
 
 # Opening a pull request
 
-Policy (enforced by `source.yaml`): the PR comes **from a fork**, from a branch that is **not
-`main`**, and targets **`dev`** of `pesu-dev/auth`.
+Policy: the PR comes **from a fork** (`.github/CONTRIBUTING.md`), from a branch that is **not
+`main`**, and targets **`dev`** of `pesu-dev/auth`. CI's *PR source checker* enforces the last two.
 
 ## 1. Preconditions
 
@@ -62,9 +62,9 @@ then push there. Never push to `pesu-dev/auth`.
 
 ## 5. Create the PR
 
-Title: the Conventional Commit line of the change (e.g. `feat: add apiVersion to /health`). The
-template's `#IssueNumber - ...` title comment is outdated (`docs/known-issues.md`); put the issue in
-the body instead.
+Title: the Conventional Commit line of the change (e.g. `feat: add apiVersion to /health`). Use
+`feat!:`/`fix!:` for a breaking change, and link the issue in the body, as the template's comment
+says.
 
 Body: `.github/PULL_REQUEST_TEMPLATE.md`, filled in truthfully:
 

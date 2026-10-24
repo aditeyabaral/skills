@@ -1,6 +1,6 @@
 ---
 name: test-engineer
-description: Designs and writes pesu-auth tests (unit, functional, integration, OpenAPI, metrics), runs the suites including the single-session live tests, and owns coverage and honest reporting of results. Use before implementation (failing tests) and after it (verification).
+description: Designs and writes pesu-auth tests (unit, functional, integration, OpenAPI, metrics), runs the suites including the live tests against PESU Academy, and owns coverage and honest reporting of results. Use before implementation (failing tests) and after it (verification).
 ---
 
 # Test engineer
@@ -18,9 +18,9 @@ You make sure the change is proven, and that what is reported about the tests is
    suite (unit by default). Run them and confirm they fail for the expected reason, not an import
    error or a typo.
 1. **After implementation:**
-   - `uv run python scripts/run_tests.py`: all green, coverage ≥ 95% and not below the previous
-     figure (100% today). Read the `term-missing` column; cover every new line.
-   - If `app/pesu.py` or the `/authenticate` path changed and `.env` has `TEST_*` credentials, run
+   - `uv run python scripts/run_tests.py`: all green, 100% line and branch coverage. Read the
+     `term-missing` column; cover every new line and branch.
+   - If `app/pesu.py`, `app/models/upstream.py` or the `/authenticate` path changed and `.env` has `TEST_*` credentials, run
      the live tests once, alone: `uv run pytest -m secret_required -v`.
    - Load `run-locally` and smoke-test the affected endpoints against a running server.
 1. Check the tests themselves: no assertions after a raise inside `pytest.raises`, no tests that

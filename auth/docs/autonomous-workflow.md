@@ -7,8 +7,8 @@ this document; this file is the reference for the rules and the role handoffs.
 ## Boundaries
 
 An agent working autonomously **may**: read anything in the repo; create branches; edit code, tests
-and docs; run the app, the tests (live tests one run at a time), linters, Docker builds and
-benchmarks against a local instance; commit; push **to the contributor's fork**; open a PR from the
+and docs; run the app, the tests (live tests once, never alongside another live run), linters,
+Docker builds and benchmarks against a local instance; commit; push **to the contributor's fork**; open a PR from the
 fork to `pesu-dev/auth` `dev`; read CI results and push fixes to its own PR branch.
 
 An agent **must not**: push to `pesu-dev/auth` or to any `dev`/`main` branch; merge, approve or
@@ -19,8 +19,8 @@ unmerged PR branch.
 
 ## Stop and hand back to a human when
 
-- the change is **breaking** (see `docs/api-contract.md`) and the request did not explicitly ask
-  for a breaking change;
+- the change is **breaking** (see `.agents/pesudev-skills/auth/docs/api-contract.md`) and the
+  request did not explicitly ask for a breaking change;
 - the change touches security-sensitive behaviour in a way the request did not spell out (auth,
   logging of personal data, the metrics token), or a vulnerability is found (report privately);
 - the work needs a new secret, environment variable, infrastructure, workflow permission, or a new
@@ -28,26 +28,26 @@ unmerged PR branch.
 - the request is ambiguous in a way that changes the design, and the codebase does not settle it;
 - the same check still fails after **three** honest fix attempts;
 - PESU Academy is down or behaving differently, so the change cannot be verified live;
-- live credentials are needed and absent for a change to `app/pesu.py` (finish everything else and
-  say the live verification is outstanding).
+- live credentials are needed and absent for a change to `app/pesu.py` or
+  `app/models/upstream.py` (finish everything else and say the live verification is outstanding).
 
 "Hand back" means: stop making changes, leave the branch in a clean, committed state, and write the
 report described below with the exact question or blocker.
 
 ## The lifecycle
 
-| #   | Phase        | Role (`.agents/pesudev-skills/auth/agents/`)             | Skills                                             | Exit criterion                                                                                                |
-| --- | ------------ | -------------------------------------------------------- | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| 1   | Triage       | `planner`                                                | `triage-issue`, `navigate-codebase`                | Problem restated, type classified, acceptance criteria written                                                |
-| 2   | Plan         | `planner`                                                | area skill (`add-endpoint`, `update-scraper`, ...) | Written plan: files to change, tests to add, docs to update, version impact, risks                            |
-| 3   | Set up       | `implementer`                                            | `setup-environment`                                | Clean branch from `upstream/dev`, baseline tests green                                                        |
-| 4   | Test first   | `test-engineer`                                          | `write-tests`                                      | New tests written and failing for the right reason                                                            |
-| 5   | Implement    | `implementer` (+ `scraper-specialist` for upstream work) | area skill                                         | Tests pass; code follows `docs/conventions.md`                                                                |
-| 6   | Verify       | `test-engineer`                                          | `run-tests`, `run-locally`                         | Full suite green with coverage ≥ 95% (keep 100%), lint clean, app and Docker smoke pass, live run if relevant |
-| 7   | Document     | `docs-writer`                                            | `update-docs`                                      | README, OpenAPI docs, CONTRIBUTING and comments match behaviour                                               |
-| 8   | Review       | `reviewer`, `security-auditor`                           | `review-change`, `security-review`                 | No blocking findings; every finding fixed or explicitly justified                                             |
-| 9   | Release prep | `release-manager`                                        | `bump-version`, `open-pull-request`                | Version bumped once, commits clean, PR opened to `dev`                                                        |
-| 10  | CI           | `ci-investigator`                                        | `fix-ci`                                           | All PR checks green, or a blocker reported                                                                    |
+| #   | Phase        | Role (`.agents/pesudev-skills/auth/agents/`)             | Skills                                             | Exit criterion                                                                                                   |
+| --- | ------------ | -------------------------------------------------------- | -------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| 1   | Triage       | `planner`                                                | `triage-issue`, `navigate-codebase`                | Problem restated, type classified, acceptance criteria written                                                   |
+| 2   | Plan         | `planner`                                                | area skill (`add-endpoint`, `update-scraper`, ...) | Written plan: files to change, tests to add, docs to update, version impact, risks                               |
+| 3   | Set up       | `implementer`                                            | `setup-environment`                                | Clean branch from `upstream/dev`, baseline tests green                                                           |
+| 4   | Test first   | `test-engineer`                                          | `write-tests`                                      | New tests written and failing for the right reason                                                               |
+| 5   | Implement    | `implementer` (+ `scraper-specialist` for upstream work) | area skill                                         | Tests pass; code follows `.agents/pesudev-skills/auth/docs/conventions.md`                                       |
+| 6   | Verify       | `test-engineer`                                          | `run-tests`, `run-locally`                         | Full suite green with 100% line and branch coverage, lint clean, app and Docker smoke pass, live run if relevant |
+| 7   | Document     | `docs-writer`                                            | `update-docs`                                      | README, `docs/`, OpenAPI docs, CONTRIBUTING and comments match behaviour                                         |
+| 8   | Review       | `reviewer`, `security-auditor`                           | `review-change`, `security-review`                 | No blocking findings; every finding fixed or explicitly justified                                                |
+| 9   | Release prep | `release-manager`                                        | `bump-version`, `open-pull-request`                | Version bumped once, commits clean, PR opened to `dev`                                                           |
+| 10  | CI           | `ci-investigator`                                        | `fix-ci`                                           | All PR checks green, or a blocker reported                                                                       |
 
 Loop back from 8 to 5 until the review is clean, and from 10 to 5 when CI finds something. Keep the
 plan from phase 2 updated as reality changes it.
@@ -69,8 +69,8 @@ tied to any tool:
 ### Copilot's cloud agent
 
 Copilot's cloud agent (an issue assigned to Copilot) pushes a branch to the repository it runs in
-and opens the pull request there itself. In `pesu-dev/auth` that pull request fails the origin
-policy, which accepts only forks. Run it on your fork instead: sync the fork's `dev` so it has the
+and opens the pull request there itself. Pull requests to `pesu-dev/auth` come from forks
+(`.github/CONTRIBUTING.md`), so run it on your fork instead: sync the fork's `dev` so it has the
 custom agents, assign the issue there, and once Copilot's pull request inside the fork is ready,
 open the fork → `pesu-dev/auth` `dev` pull request yourself. The release-manager phase then only
 checks the version bump and the pull request description.
@@ -83,15 +83,15 @@ that reason alone. Run `uv run pytest tests/unit -q`, report the run as partial,
 ## Definition of done
 
 - [ ] Acceptance criteria from triage are met and demonstrated (test names or command output).
-- [ ] `uv run python scripts/run_tests.py` passes; coverage ≥ 95% and not lower than before.
-- [ ] Live tests run once if the change touches `app/pesu.py` or `/authenticate` and credentials
-  exist; otherwise the PR says they were not run.
+- [ ] `uv run python scripts/run_tests.py` passes, with 100% line and branch coverage.
+- [ ] Live tests run once if the change touches `app/pesu.py`, `app/models/upstream.py` or
+  `/authenticate` and credentials exist; otherwise the PR says they were not run.
 - [ ] `uv run pre-commit run --all-files` passes.
-- [ ] Docker image builds and answers on `/` and `/health` when the change affects runtime,
-  dependencies or the `Dockerfile`.
-- [ ] README, OpenAPI docs (`app/docs/`), and comments updated for any behaviour change.
+- [ ] Docker image builds, runs as UID 10001 and answers on `/health` when the change affects
+  runtime, dependencies or the `Dockerfile`.
+- [ ] README, `docs/`, OpenAPI docs (`app/docs/`) and comments updated for any behaviour change.
 - [ ] Review and security review have no open blocking findings.
-- [ ] Version bumped exactly once (minor, or major for breaking), `uv.lock` in step.
+- [ ] Version bumped exactly one step (minor by default, patch or major where they apply), `uv.lock` in step.
 - [ ] Commits follow Conventional Commits with explanatory bodies.
 - [ ] PR opened from the fork to `dev` with the template filled in truthfully.
 
@@ -102,7 +102,7 @@ this shape:
 
 ```markdown
 ## Outcome
-<done | blocked | handed back> — one sentence.
+<done | blocked | handed back>: one sentence.
 
 ## What changed
 - <file>: <what and why>

@@ -18,13 +18,13 @@ You turn a request into a plan another agent can execute without guessing. You d
 1. Load `triage-issue` and `navigate-codebase`. Read `AGENTS.md` and the reference docs that match
    the area (`.agents/pesudev-skills/auth/docs/`).
 1. Restate the problem in two or three sentences, classify it (feature, bug, refactor, docs,
-   dependency, CI, scraper change) and say whether it is breaking per `docs/api-contract.md`.
+   dependency, CI, upstream change) and say whether it is breaking per `.agents/pesudev-skills/auth/docs/api-contract.md`.
 1. Read every file you plan to change, and the tests that cover them. Find existing helpers to
    reuse (`_upstream_call`, `ApiDocs`, `MetricFamily`, the test fixtures) instead of planning new
    ones.
 1. Pick the area skill(s) the implementer will follow (`add-endpoint`, `update-scraper`, ...).
 1. Write the plan (format below). Every step names files and functions. Every behaviour change has a
-   test and a doc update. State the version bump (minor or major).
+   test and a doc update. State the version bump (minor, patch or major) and why.
 1. List risks: concurrency and client lifecycle, API compatibility, PESU-side uncertainty, metrics
    invariants, live-test needs.
 
@@ -41,7 +41,7 @@ You turn a request into a plan another agent can execute without guessing. You d
 ## Docs
 - README section / app/docs module / CONTRIBUTING
 ## Version
-minor | major, and why
+minor | patch | major, and why
 ## Risks and open questions
 ```
 

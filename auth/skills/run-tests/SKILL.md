@@ -1,6 +1,6 @@
 ---
 name: run-tests
-description: Run the pesu-auth test suites correctly - targeted pytest, the canonical scripts/run_tests.py with its 95% coverage gate, the single-session live tests, and the full pre-commit run - and report results truthfully, including partial runs. Use whenever you need to know if the code works.
+description: Run the pesu-auth test suites correctly - targeted pytest, the canonical scripts/run_tests.py with its 100% line and branch coverage gate, the live tests against PESU Academy, and the full pre-commit run - and report results truthfully, including partial runs. Use whenever you need to know if the code works.
 ---
 
 # Running tests
@@ -15,38 +15,45 @@ description: Run the pesu-auth test suites correctly - targeted pytest, the cano
 | Everything without credentials   | `uv run pytest -m "not secret_required" -q` (needs internet)                       |
 | **Canonical run** (what CI runs) | `uv run python scripts/run_tests.py`                                               |
 | Live tests only                  | `uv run pytest -m secret_required -v`                                              |
-| All CI checks incl. tests        | `uv run pre-commit run --all-files`                                                |
+| All hooks incl. tests            | `uv run pre-commit run --all-files`                                                |
 
-`scripts/run_tests.py` loads `.env`, runs pytest with `--cov=app --cov-fail-under=95 --cov-report=term-missing`, and deselects the live tests (printing **"Live PESU tests skipped"**)
-unless `TEST_EMAIL`, `TEST_PRN`, `TEST_PHONE` and `TEST_PASSWORD` are all set.
+`scripts/run_tests.py` loads `.env` and runs
+`pytest --cov --cov-report=term-missing --disable-warnings -v -s`, with coverage configured in
+`pyproject.toml` (`app/`, `scripts/`, `.github/scripts/`, branches counted, fail under 100%). It
+deselects the live tests and warns **"Live PESU tests skipped"** unless `TEST_EMAIL`, `TEST_PRN`,
+`TEST_SRN`, `TEST_MOBILE` and `TEST_PASSWORD` are all set. The tests need the `benchmark` group too
+(`uv sync --all-groups`).
 
-## The live-test rule
+## The live tests
 
-The test account allows **one session**. Before any run that includes live tests:
+Every live run makes real logins to PESU Academy. Before one:
 
-- make sure no other test run (yours, another agent's, a terminal) is in progress;
-- never pass `-n`/`--numprocesses`, never run two pytest processes at once;
-- avoid running right after a merge to `dev` (CI is using the account).
+- run it because the change needs it (`app/pesu.py`, `app/models/upstream.py`, `/authenticate`),
+  once, not in a loop;
+- make sure no other live run or benchmark (yours, another agent's, a terminal) is in progress;
+- never pass `-n`/`--numprocesses`.
 
-A live test failing with 401 on valid credentials is almost always a concurrent session: wait, then
-rerun **once**.
+A live test failing on a field comparison after a PESU app release usually means PESU's API changed
+(`update-scraper`); a 401 on credentials that worked before means the account's credentials changed
+or PESU's login did. Rerun **once** at most before reporting.
 
 ## Interpreting results
 
-- **Coverage:** the gate is 95%, but the suite is at 100%. A drop is a finding even when the gate
-  passes; add tests for the lines listed under `Missing`.
+- **Coverage:** the gate is 100% of lines and branches. Add tests for the lines and branches listed
+  under `Missing`; never exclude code to pass.
 - **Ordering:** `tests/conftest.py` forces unit → functional → integration. A test that passes alone
   but fails in the suite usually leaks state through a module singleton (`app.app.metrics`,
   `app.app.pesu_academy`, `app.openapi_schema`). Fix the isolation, not the order.
-- **Network failures** in functional/integration tests (connection errors, timeouts): PESU Academy
-  or the network is down. Not a code failure; say so and rely on `tests/unit` plus a later rerun.
+- **Network failures** in functional or integration tests (connection errors, timeouts): PESU
+  Academy or the network is down. Not a code failure; say so and rely on `tests/unit` plus a later
+  rerun.
 - **One `DeprecationWarning`** from Starlette's test client is expected.
 
 ## Reporting
 
 Always report the exact command and its summary line, for example:
 
-> `uv run python scripts/run_tests.py` → 265 passed, 11 deselected, coverage 100%. **Partial run:**
+> `uv run python scripts/run_tests.py` → 640 passed, 14 deselected, coverage 100%. **Partial run:**
 > live PESU tests skipped (no credentials).
 
 Never describe a partial run as a full pass, never omit failures, and never paste credential values

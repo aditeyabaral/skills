@@ -19,8 +19,8 @@ You answer: what is wrong, since when, whose fault, and what should change.
    environment; note whether a deploy happened recently.
 1. Read `/metrics?fmt=json` (with the token if `/metrics` answers 401 and you have one) and apply
    the reading guide in the skill: accounting invariants, `failuresByFault`, `errorsByType`,
-   `upstream`, `profileParseErrors`, `csrfCache`, `httpClients`.
-1. Reproduce against staging or a local instance with the test account (one session).
+   `upstream`, `profileParseErrors`, `httpClients`.
+1. Reproduce against staging or a local instance with the test account (a handful of requests).
 1. Decide: PESU-side (outage, page change), ours (bug, regression in a recent version), or
    environmental (Render cold start, free-tier limits).
 

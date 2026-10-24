@@ -1,17 +1,20 @@
 ---
 name: benchmark
-description: Measure pesu-auth latency, throughput and CSRF token lifetime with the scripts in scripts/benchmark against a running instance, compare a change with a baseline, and report the numbers without overloading PESU Academy. Use for performance work, concurrency changes, or before and after changes to the request path.
+description: Measure pesu-auth latency and throughput with the scripts in scripts/benchmark against a running instance, compare a change with a baseline, and report the numbers without overloading PESU Academy. Use for performance work, concurrency changes, or before and after changes to the request path.
 ---
 
 # Benchmarking
 
 The scripts live in `scripts/benchmark/` and import `util.py` from the same folder, so run them from
-there. Results (CSV and plots) go to `benchmark/results/` at the repo root, named
-`{script}_{date}_{time}[_tag].{ext}`, and are gitignored.
+there, with the `benchmark` dependency group. Results (CSV and plots) go to `benchmark/results/` at
+the repo root, named `{script}_{date}_{time}.{ext}` or `{script}_{date}_{time}_{tag}.{ext}` with
+`--tag`; CSVs and PNGs are gitignored. The CSV format and how throughput is computed are in the
+repository's `docs/testing.md` ("Benchmarks").
 
-**Every `/authenticate` request logs in to PESU Academy for real with the `TEST_*` account.** Keep
-request counts small (tens, not thousands), keep parallelism modest, and do not run benchmarks while
-tests or another benchmark use the account. Routes `health` and `readme` do not touch PESU.
+**Every `/authenticate` request logs in to PESU Academy for real** with `TEST_PRN` and
+`TEST_PASSWORD` from `.env`. Keep request counts small (tens, not thousands), keep parallelism
+modest, and do not run benchmarks alongside the live tests or another benchmark: both wait on PESU,
+so each skews the other's timings. Routes `health` and `readme` do not touch PESU.
 
 ## Baseline and comparison
 
@@ -21,24 +24,18 @@ uv run python -m app.app
 
 # terminal 2
 cd scripts/benchmark
-uv run python benchmark_requests.py --num-requests 20 --parallel --max-workers 5 --tag baseline
-uv run python benchmark_requests.py --num-requests 20 --no-profile --tag baseline-noprofile
-uv run python analyze_benchmark.py -f ../../benchmark/results/benchmark_requests_*_baseline.csv
+uv run --group benchmark python benchmark_requests.py --num-requests 20 --parallel --max-workers 5 --tag baseline
+uv run --group benchmark python benchmark_requests.py --num-requests 20 --no-profile --tag baseline-noprofile
+uv run --group benchmark python analyze_benchmark.py -f ../../benchmark/results/benchmark_requests_*_baseline.csv
 ```
 
 Then switch to your branch, restart the server, and repeat with `--tag change`. Compare success rate,
-mean and median latency, and the tail (max). Also read `/metrics?fmt=json` after each run:
-`upstream.*.latency.averageSeconds` separates PESU's latency from ours, `csrfCache` shows how often
-callers waited for a token, and `httpClients` created minus closed must be back to 1 at rest.
+mean and median latency, the tail (max) and throughput. Also read `/metrics?fmt=json` after each run:
+`upstream.<operation>.latency.averageSeconds` separates PESU's latency from ours, and
+`httpClients` created minus closed must be back to 0 at rest.
 
 Useful flags (`--help` on each script for all): `--host` (default `http://localhost:5000`),
 `--route authenticate|health|readme`, `--timeout`, `--output-dir`, `--output`, `--verbose`.
-
-## CSRF token lifetime
-
-`unauthenticated_csrf_token_expiry.py` tests whether a prefetched token still works after waiting;
-it informs `CSRF_TOKEN_REFRESH_INTERVAL_SECONDS` (45 min). It runs for a long time by design; run it
-only when changing that interval, and read its `--help` first.
 
 ## Reporting
 

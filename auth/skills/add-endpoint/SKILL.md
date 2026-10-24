@@ -1,6 +1,6 @@
 ---
 name: add-endpoint
-description: Add a new route to pesu-auth the way the repo requires - route in app/app.py with tags and docstring, pydantic models, an ApiDocs module with examples for every response, errors via PESUAcademyError, metrics, README section and tests that satisfy the OpenAPI documentation tests. Use for any new HTTP endpoint.
+description: Add a new route to pesu-auth the way the repo requires - route in app/app.py with tags and docstring, pydantic models, an ApiDocs module with examples for every response, errors via PESUAcademyError, metrics, README section and tests that satisfy the OpenAPI documentation and contract tests. Use for any new HTTP endpoint.
 ---
 
 # Adding an endpoint
@@ -23,7 +23,8 @@ class FooRequestModel(BaseModel):
 ```
 
 Responses use `populate_by_name=True` instead of `extra="forbid"`, and are dumped with
-`model_dump(by_alias=True, exclude_none=True)`. Follow `change-api-models` for validators.
+`model_dump(by_alias=True)` (`/authenticate` uses `exclude_unset=True` so that a value it has not got
+is `null` rather than absent). Follow `change-api-models` for validators.
 
 ## 2. Docs module
 
@@ -53,13 +54,17 @@ async def foo() -> JSONResponse:
 ```
 
 - Raise `PESUAcademyError` subclasses for failures (`add-error-type`); never return error bodies.
+- A GET that monitors or scripts may call also gets a HEAD route, stacked above it and kept out of the
+  schema, as `/health` has: `@app.head("/foo", include_in_schema=False)`. A protected route repeats
+  its `dependencies=` on the HEAD route too.
+- Security headers, 404s and 405s are handled for every route already; add nothing for them.
 - Timestamps: `datetime.datetime.now(IST).isoformat()`.
 - Use the module singletons (`metrics`, `pesu_academy`) by name at call time, never captured.
 - Protected endpoint: `dependencies=[Depends(require_metrics_token)]`, or a new dependency built the
   same way (`HTTPBearer(auto_error=False)` + raising a `PESUAcademyError`) so the 401 keeps this
   API's body and is counted.
 - Names used in the signature must be importable at runtime (the `TYPE_CHECKING` trap in
-  `docs/conventions.md`).
+  `.agents/pesudev-skills/auth/docs/conventions.md`).
 
 ## 4. Metrics
 
@@ -69,23 +74,26 @@ Never label by a raw path parameter value.
 
 ## 5. Tests
 
-- `tests/unit/test_<name>.py` (or extend `test_app_unit.py`) with the `client` fixture that patches
-  prefetch/close; cover success, each error, and validation failures (400 with the standard body).
-- Run `uv run pytest tests/unit/test_openapi_docs.py -q`: it checks the route is tagged, has a
-  summary and description, documents success and 500, and that examples validate. Fix the docs, not
-  the tests.
+- `tests/unit/test_<name>.py` (or extend `test_app_unit.py`) with a `TestClient(app)` fixture (the
+  lifespan makes no upstream calls); cover success, each error, and validation failures (400 with the
+  standard body).
+- Run `uv run pytest tests/unit/test_openapi_docs.py tests/unit/test_openapi_contract.py -q`: they
+  check the route is tagged, has a summary and description, documents success and 500, that examples
+  validate, and that every generated request gets a documented response. Fix the docs, not the tests.
+  Routes that take no input are also listed in `PAGES` in `tests/unit/conftest.py`.
 - If the endpoint calls PESU Academy, add a live test marked `secret_required`.
 
 ## 6. Documentation and benchmark
 
 - README: add a row to the endpoints table in "How to use the PESUAuth API" and a `### /foo` section
   (parameters, responses table, response object), in the same style as `/health` and `/metrics`.
+  The API Explorer and Swagger UI are built from `/openapi.json`, so they need no change.
 - If the endpoint should be benchmarkable, add it to the `--route` choices in
   `scripts/benchmark/benchmark_requests.py`. `make_request` in `scripts/benchmark/util.py` already
   sends a GET for any route other than `authenticate`; a new POST route needs its own branch there.
 
 ## 7. Verify
 
-`run-tests`, then `run-locally`: call the endpoint with curl, check the body, status, Swagger at `/`,
-and that `/metrics` shows `route_requests_total{route="/foo"}`. A new endpoint is a minor version bump
-(additive).
+`run-tests`, then `run-locally`: call the endpoint with curl, check the body, status, the API
+Explorer at `/` and Swagger at `/docs`, and that `/metrics` shows `route_requests_total{route="/foo"}`.
+A new endpoint is a minor version bump (additive).

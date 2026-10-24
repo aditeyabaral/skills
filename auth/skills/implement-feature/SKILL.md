@@ -45,17 +45,17 @@ expected reason.
 
 Load the area skill(s) from the plan:
 
-| Change                                        | Skill                    |
-| --------------------------------------------- | ------------------------ |
-| new route                                     | `add-endpoint`           |
-| request/response/profile fields or validation | `change-api-models`      |
-| PESU HTML, login, new profile field           | `update-scraper`         |
-| new metric                                    | `add-metric`             |
-| new failure mode                              | `add-error-type`         |
-| CSRF cache, client lifecycle, concurrency     | `change-upstream-client` |
-| packages or tool versions                     | `update-dependencies`    |
-| restructure only                              | `refactor`               |
-| bug                                           | `fix-bug`                |
+| Change                                         | Skill                    |
+| ---------------------------------------------- | ------------------------ |
+| new route                                      | `add-endpoint`           |
+| request/response/profile fields or validation  | `change-api-models`      |
+| PESU's API, login, profile fields              | `update-scraper`         |
+| new metric                                     | `add-metric`             |
+| new failure mode                               | `add-error-type`         |
+| HTTP client, lifecycle, timeouts, cancellation | `change-upstream-client` |
+| packages or tool versions                      | `update-dependencies`    |
+| restructure only                               | `refactor`               |
+| bug                                            | `fix-bug`                |
 
 Work step by step, narrowest test first. Commit logical steps as you go (`open-pull-request` has
 the commit format).
@@ -63,13 +63,14 @@ the commit format).
 ## Phase 5: Verify (role: `test-engineer`)
 
 ```bash
-uv run python scripts/run_tests.py          # all green, coverage ≥ 95% and not lower than baseline
+uv run python scripts/run_tests.py          # all green, 100% line and branch coverage
 uv run pre-commit run --all-files           # lint, format, mdformat, hygiene, tests
 ```
 
 Then, as relevant:
 
-- live tests once, alone, if `app/pesu.py` or `/authenticate` changed and `.env` has credentials:
+- live tests once, if `app/pesu.py`, `app/models/upstream.py` or `/authenticate` changed and `.env`
+  has credentials:
   `uv run pytest -m secret_required -v`;
 - `run-locally`: smoke-test affected endpoints on a running server, and the Docker image if runtime,
   dependencies or the `Dockerfile` changed.
@@ -87,7 +88,7 @@ Repeat until the review is clean. Three failed rounds on the same finding → ha
 
 ## Phase 8: Release prep (role: `release-manager`)
 
-1. Walk the definition of done in `docs/autonomous-workflow.md`; every box must be true.
+1. Walk the definition of done in `.agents/pesudev-skills/auth/docs/autonomous-workflow.md`; every box must be true.
 1. Load `bump-version` (once per PR).
 1. Load `open-pull-request`: rebase on `upstream/dev`, final `pre-commit`, push to the fork, open
    the PR to `dev`.
@@ -99,6 +100,6 @@ not run the live tests in CI; state in the PR whether you ran them locally.
 
 ## Final report
 
-Use the report format in `docs/autonomous-workflow.md`: outcome, changes, verification with real
+Use the report format in `.agents/pesudev-skills/auth/docs/autonomous-workflow.md`: outcome, changes, verification with real
 counts (say "partial" when live tests did not run), PR URL, open items. Never report a check you did
 not run as passing.

@@ -208,7 +208,7 @@ example): agents would have two competing skills for the same task.
 1. Optional, if the project has roles: generate Copilot wrappers for them as described in
    [Roles as Copilot custom agents](#roles-as-copilot-custom-agents), copying `auth`'s
    `scripts/sync_agents.py`, its `sync-agents` pre-commit hook, `submodules: true` on the
-   pre-commit workflow's checkout, and `.github/workflows/copilot-setup-steps.yml`.
+   checkout of the CI job that runs the hooks, and `.github/workflows/copilot-setup-steps.yml`.
 
 ## Cloning a project
 
@@ -235,8 +235,8 @@ inside the project.
 If your change adds or removes a role or edits a role's frontmatter (`name`, `description`,
 `tools`), Dependabot's pull request fails the `sync-agents` check in every project that generates
 Copilot custom agents, and Dependabot cannot regenerate them. Follow up in each such project with a
-pull request from your fork that bumps the submodule and regenerates the agents; `auth`'s
-`docs/ci-cd.md` ("Dependabot submodule bumps") has the steps. Changes to a role's body need nothing:
+pull request from your fork that bumps the submodule and regenerates the agents;
+`auth/docs/ci-cd.md` ("Dependabot submodule bumps") has the steps. Changes to a role's body need nothing:
 the wrappers only point at it.
 
 ## Checks

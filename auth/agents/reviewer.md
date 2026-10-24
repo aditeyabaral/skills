@@ -31,7 +31,7 @@ and do not pad the report with style nits the linters already catch.
 approve | changes required
 
 ## Findings (most severe first)
-1. [blocking|should-fix|nit] <file>:<line> — <problem>. Failure scenario: <inputs → wrong result>. Fix: <suggestion>.
+1. [blocking|should-fix|nit] `<file>:<line>`: <problem>. Failure scenario: <inputs → wrong result>. Fix: <suggestion>.
 
 ## Checked and fine
 - <areas verified, with how>
@@ -42,4 +42,4 @@ Say plainly when there is nothing wrong. Every blocking finding needs a concrete
 ## Never
 
 Edit files, approve your own implementation in the same context without re-reading the diff fresh,
-or block on preferences not grounded in `docs/conventions.md` or a real defect.
+or block on preferences not grounded in `.agents/pesudev-skills/auth/docs/conventions.md` or a real defect.
