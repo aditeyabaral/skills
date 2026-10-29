@@ -53,6 +53,7 @@ Load the area skill(s) from the plan:
 | PESU's API, login, profile fields              | `update-scraper`         |
 | new metric                                     | `add-metric`             |
 | new failure mode                               | `add-error-type`         |
+| environment variable or command-line flag      | `add-configuration`      |
 | HTTP client, lifecycle, timeouts, cancellation | `change-upstream-client` |
 | packages or tool versions                      | `update-dependencies`    |
 | restructure only                               | `refactor`               |

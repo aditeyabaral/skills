@@ -45,4 +45,5 @@ description: Bring pesu-auth documentation in step with behaviour - README secti
   pages name; run it with `test_openapi_docs.py` after any docs change.
 - In anything a caller reads, do not mention "the mobile API", and do not put examples inside field
   descriptions: the schema's `example` covers them.
+- A new or changed setting has its own steps, Render included: `add-configuration`.
 - Doc-only changes still bump the version (every PR does): `docs:` commit type.

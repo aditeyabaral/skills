@@ -137,6 +137,7 @@ them that way; otherwise, when a task matches a row below, open that `SKILL.md` 
 | `update-scraper`         | PESU Academy's API changed, or a profile field is added or changed         |
 | `add-metric`             | A new counter, gauge or summary                                            |
 | `add-error-type`         | A new failure mode that needs its own status or message                    |
+| `add-configuration`      | A new or changed environment variable or command-line flag                 |
 | `change-upstream-client` | Anything touching the HTTP client, its lifecycle, timeouts or cancellation |
 | `update-dependencies`    | Adding, upgrading or removing packages, Python or tooling versions         |
 | `update-docs`            | README, `docs/`, OpenAPI docs, CONTRIBUTING, docstrings                    |
