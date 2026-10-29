@@ -132,6 +132,7 @@ them that way; otherwise, when a task matches a row below, open that `SKILL.md` 
 | `fix-bug`                | Something behaves wrongly; reproduce, test, fix                            |
 | `refactor`               | Restructuring without behaviour change                                     |
 | `add-endpoint`           | A new route                                                                |
+| `change-api-explorer`    | Changing the API Explorer page at `/`                                      |
 | `change-api-models`      | Changing request, response or profile fields or validation                 |
 | `update-scraper`         | PESU Academy's API changed, or a profile field is added or changed         |
 | `add-metric`             | A new counter, gauge or summary                                            |

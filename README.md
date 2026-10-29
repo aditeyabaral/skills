@@ -27,7 +27,7 @@ common/                        shared across pesu-dev
 ```
 
 **`auth/` is the reference project.** It has everything a project folder can have: an `AGENTS.md`,
-ten reference docs, ten roles and 25 skills that together let an agent take a change from an issue
+ten reference docs, ten roles and 26 skills that together let an agent take a change from an issue
 to an open pull request on its own. Start a new project by reading it and copying the parts that
 fit.
 
