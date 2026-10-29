@@ -76,7 +76,8 @@ Agents take the second route. A bump that only changes role bodies, skills or do
       (`ghcr.io/pesu-dev/pesu-auth`) and Docker Hub (`pesudev/pesu-auth`), and the git tag and
       GitHub Release are created.
    1. **Update `main`:** `main` is fast-forwarded to the released commit.
-1. The deployed version is visible at `/openapi.json` → `info.version`.
+1. `/health` shows the deployed `version` and its `environment` (`production` or `staging`), and
+   `/openapi.json` shows the version as `info.version`.
 
 A run that fails after the deploy has already put the new commit on production; a maintainer fixes
 the cause and re-runs the failed jobs. Agents perform none of this.

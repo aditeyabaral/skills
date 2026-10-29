@@ -17,8 +17,8 @@ idling takes tens of seconds, and restarts reset all counters.
 ## 1. Establish facts
 
 ```bash
-curl -s https://pesuauth.onrender.com/openapi.json | python -c 'import json,sys; print(json.load(sys.stdin)["info"]["version"])'
-curl -s -w "\n%{http_code} %{time_total}s\n" https://pesuauth.onrender.com/health
+curl -s -w "\n%{http_code} %{time_total}s\n" https://pesuauth.onrender.com/health      # version and environment
+curl -s -w "\n%{http_code} %{time_total}s\n" https://pesuauth-dev.onrender.com/health
 gh run list --repo pesu-dev/auth --workflow deploy_prod.yml --limit 3      # recent releases
 gh run list --repo pesu-dev/auth --workflow deploy_staging.yml --limit 3   # recent staging deploys
 git log --oneline upstream/main -10                                         # what is in production
@@ -26,6 +26,10 @@ git log --oneline upstream/main -10                                         # wh
 
 `main` is moved to a commit only after it is released, so `upstream/main` is what production runs
 unless a release failed after its deploy (check the latest Deploy to Production run).
+
+`/health` reports the running `version` and its `environment`: `production` on pesuauth and `staging`
+on pesuauth-dev. `development` there means `PESU_AUTH_ENVIRONMENT` is not set on that Render
+service.
 
 ## 2. Read the metrics
 
@@ -61,13 +65,14 @@ violated, the metrics code itself has a bug.
 
 ## 4. Conclude
 
-| Evidence                                                                                              | Cause                | Next step                                               |
-| ----------------------------------------------------------------------------------------------------- | -------------------- | ------------------------------------------------------- |
-| Upstream errors or timeouts, PESU unreachable                                                         | PESU outage          | Report; nothing to change; monitor                      |
-| Parse errors, `missing_field`/`unexpected_value` counts, 502s or 401s for valid users, PESU reachable | PESU changed its API | `update-scraper` task                                   |
-| Started with a deploy; reproducible locally on that commit                                            | Our regression       | `fix-bug` task; recommend maintainers consider a revert |
-| Slow first request, then fine                                                                         | Render cold start    | Expected on free tier                                   |
-| Client counts climbing, memory growth                                                                 | Leak                 | `change-upstream-client` / `fix-bug`                    |
+| Evidence                                                                                              | Cause                | Next step                                                 |
+| ----------------------------------------------------------------------------------------------------- | -------------------- | --------------------------------------------------------- |
+| Upstream errors or timeouts, PESU unreachable                                                         | PESU outage          | Report; nothing to change; monitor                        |
+| Parse errors, `missing_field`/`unexpected_value` counts, 502s or 401s for valid users, PESU reachable | PESU changed its API | `update-scraper` task                                     |
+| Started with a deploy; reproducible locally on that commit                                            | Our regression       | `fix-bug` task; recommend maintainers consider a revert   |
+| Slow first request, then fine                                                                         | Render cold start    | Expected on free tier                                     |
+| A deploy fails with `PESU_AUTH_ENVIRONMENT must be ...`, or `/health` reports the wrong `environment` | Render setting       | A maintainer sets `PESU_AUTH_ENVIRONMENT` on that service |
+| Client counts climbing, memory growth                                                                 | Leak                 | `change-upstream-client` / `fix-bug`                      |
 
 ## Report
 

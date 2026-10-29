@@ -22,7 +22,7 @@ done.
 ```bash
 curl -s -o /dev/null -w "%{http_code}\n" localhost:5000/                  # 200 API Explorer
 curl -s -o /dev/null -w "%{http_code}\n" localhost:5000/docs              # 200 Swagger UI
-curl -s localhost:5000/health                                             # {"status":true,"message":"ok",...}
+curl -s localhost:5000/health                                             # {"status":true,...,"environment":"development"}
 curl -sI localhost:5000/health                                            # HEAD 200, with the security headers
 curl -s -o /dev/null -w "%{http_code} %{redirect_url}\n" localhost:5000/readme   # 308 https://github.com/pesu-dev/auth
 curl -s localhost:5000/metrics | head -5                                  # Prometheus text
