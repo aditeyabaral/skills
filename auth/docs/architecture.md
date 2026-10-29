@@ -26,6 +26,7 @@ Deployed on Render (free tier, Singapore) as a single uvicorn worker: production
 | `app/models/profile.py`                 | `ProfileField` (the field names a caller can request) and `ProfileModel`                                              |
 | `app/models/upstream.py`                | The shapes read from PESU Academy: `LoginResponse`, `ProfileResponse`, `StudentInfo`, `StudentPhoto`, `ErrorEnvelope` |
 | `app/models/metrics.py`                 | `MetricsModel` and friends: the `/metrics?fmt=json` view, built from a snapshot                                       |
+| `app/models/health.py`                  | `HealthModel`, the `/health` body, and `Environment`, the values `PESU_AUTH_ENVIRONMENT` may take                     |
 | `app/exceptions/base.py`                | `PESUAcademyError(message, status_code, headers, detail)`, the base of every handled error                            |
 | `app/exceptions/authentication.py`      | `AuthenticationError` 401, `UpstreamError` 502, `ProfileFetchError` 502, `ProfileParseError` 422                      |
 | `app/exceptions/request.py`             | `RequestBodyParseError` 400, `RouteNotFoundError` 404, `MethodNotAllowedError` 405                                    |
@@ -72,8 +73,9 @@ must stay true of the code (the `change-upstream-client` skill has the full list
 - **Responses are parsed into declared fields only.** `app/models/upstream.py` declares just what
   the service returns, so the rest of PESU's response (photos, addresses, parents' details, marks)
   never reaches a log, an exception or a repr. `LoginResponse.access_token` has `repr=False`.
-- **No upstream call outside a request.** The lifespan only counts startup and shutdown, so the app
-  starts without reaching PESU Academy, and so does `TestClient(app)`.
+- **No upstream call outside a request.** The lifespan only counts startup and shutdown and reads
+  `PESU_AUTH_ENVIRONMENT`, so the app starts without reaching PESU Academy, and so does
+  `TestClient(app)`.
 
 ## Error handling
 
@@ -118,9 +120,13 @@ The schema is cached on `app.openapi_schema`. Tests reset it with `app.openapi_s
 
 - CLI flags: `--host` (default `0.0.0.0`), `--port` (default from `PORT`, else 5000), `--debug`
   (DEBUG logging and uvicorn reload).
-- The app reads two environment variables: `PORT` (through the `--port` default) and
-  `METRICS_TOKEN`, **once at import** (`app/metrics/auth.py`). Unset or blank means `/metrics` is
-  open. `tests/unit/test_docs.py` fails if `docs/development.md` misses one.
+- The app reads three environment variables: `PORT` (through the `--port` default);
+  `METRICS_TOKEN`, **once at import** (`app/metrics/auth.py`), where unset or blank means `/metrics`
+  is open; and `PESU_AUTH_ENVIRONMENT`, **once in the lifespan**, stored on `app.state.environment`
+  and reported by `/health`. It must be `development` (the default when unset), `staging` or
+  `production`; any other value raises `ValueError`, so the app fails to start. Render sets
+  `staging` on pesuauth-dev and `production` on pesuauth. `tests/unit/test_docs.py` fails if
+  `docs/development.md` misses one.
 - `.env` is read by the test suite and the benchmark scripts only, never by the app.
 - The Docker image (`Dockerfile`) is `python:3.14-slim-trixie`, installs from the lock with
   `uv sync --locked --no-dev`, copies only the virtualenv and `app/` into the runtime stage, runs as

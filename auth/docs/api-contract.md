@@ -13,13 +13,17 @@ two honest. A change to any of them must update the others.
 | `/docs`         | GET, HEAD | (not in schema) | 200 Swagger UI                                               |                                   | `docs_url="/docs"`; `/redoc` serves ReDoc                                                     |
 | `/openapi.json` | GET, HEAD | (not in schema) | 200                                                          |                                   | Generated, with the overrides described in `.agents/pesudev-skills/auth/docs/architecture.md` |
 | `/authenticate` | POST      | Authentication  | 200 `ResponseModel`                                          | 400, 401, 422, 500, 502           | Body `RequestModel`; `Cache-Control: no-store`                                                |
-| `/health`       | GET, HEAD | Monitoring      | 200 `{status: true, message: "ok", timestamp}`               | 500                               | Must stay unauthenticated: uptime monitors and Render call it                                 |
+| `/health`       | GET, HEAD | Monitoring      | 200 `HealthModel`                                            | 500                               | Must stay unauthenticated: uptime monitors and Render call it; `Cache-Control: no-store`      |
 | `/metrics`      | GET, HEAD | Monitoring      | 200 Prometheus text (default) or JSON (`?fmt=json`)          | 400 (bad `fmt`), 401 (token), 500 | Protected only when `METRICS_TOKEN` is set, for HEAD as for GET                               |
 | `/readme`       | GET, HEAD | Documentation   | 308 to `https://github.com/pesu-dev/auth`                    | 500                               |                                                                                               |
 
 HEAD routes are separate `@app.head(..., include_in_schema=False)` routes stacked on the GET ones,
 so each operation is documented once. Every response carries `X-Content-Type-Options: nosniff`,
 `Referrer-Policy: no-referrer` and `X-Frame-Options: DENY`.
+
+`/health` answers `{status: true, message: "ok", timestamp, version, environment}`
+(`app/models/health.py`): `version` is the installed package version and `environment` is
+`PESU_AUTH_ENVIRONMENT` (`development`, `staging` or `production`), read once at startup.
 
 ## `/authenticate`
 

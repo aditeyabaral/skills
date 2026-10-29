@@ -48,8 +48,8 @@ docker build . --tag pesu-auth && docker run --rm -p 5000:5000 pesu-auth
 ```
 app/app.py              FastAPI app: lifespan, routes, exception handlers, middleware, OpenAPI override, CLI
 app/pesu.py             PESUAcademy: login and profile calls to PESU Academy, building the profile, client lifecycle
-app/models/             RequestModel, ResponseModel, ProfileModel, MetricsModel (strict, camelCase); upstream.py:
-                        the shapes read from PESU Academy
+app/models/             RequestModel, ResponseModel, ProfileModel, MetricsModel, HealthModel (strict, camelCase);
+                        upstream.py: the shapes read from PESU Academy
 app/exceptions/         PESUAcademyError and subclasses (status code and fixed message live on the exception)
 app/metrics/            collector (families), middleware, Prometheus renderer, METRICS_TOKEN auth
 app/docs/               OpenAPI request/response examples per route (enforced by tests)

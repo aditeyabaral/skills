@@ -43,8 +43,8 @@ security relevant.
   `detail`, which only the log sees. 500s return a generic message. PESU's own error text is never
   forwarded to the caller, and no error echoes the path or body the caller sent.
 - **Browser-side issues.** Every response carries `X-Content-Type-Options: nosniff`,
-  `Referrer-Policy: no-referrer` and `X-Frame-Options: DENY`; `/authenticate` also carries
-  `Cache-Control: no-store`. The API Explorer never stores a token in browser storage.
+  `Referrer-Policy: no-referrer` and `X-Frame-Options: DENY`; `/authenticate` and `/health`
+  also carry `Cache-Control: no-store`. The API Explorer never stores a token in browser storage.
 - **Resource exhaustion.** Upstream timeout is 10s; clients are always closed.
 - **Container.** The image runs as the unprivileged UID 10001 with root-owned, read-only application
   files; CI checks the UID.
