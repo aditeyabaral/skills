@@ -98,5 +98,6 @@ approve | changes required
 - <area>: <how verified>
 ```
 
-When reviewing someone else's PR you may post the review with `gh pr review` only if the human asked
+When reviewing someone else's PR for a maintainer, also follow `review-pull-request`: fetching it
+safely, posting suggestions, re-review rounds and what a merge needs. Post only if the human asked
 you to; never approve or merge.

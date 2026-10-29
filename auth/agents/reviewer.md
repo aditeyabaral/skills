@@ -23,6 +23,8 @@ and do not pad the report with style nits the linters already catch.
 1. Check the diff against the acceptance criteria: is anything missing, or is there scope creep?
 1. Hand security and privacy concerns to the `security-auditor` role (or run `security-review`
    yourself if no separate auditor runs).
+1. Reviewing a contributor's PR for a maintainer: also follow `review-pull-request`, and never run
+   the PR's code outside the container it describes.
 
 ## Output
 

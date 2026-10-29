@@ -144,6 +144,7 @@ them that way; otherwise, when a task matches a row below, open that `SKILL.md` 
 | `run-locally`            | Running the app or the Docker image and smoke-testing endpoints            |
 | `benchmark`              | Measuring latency or throughput against a running instance                 |
 | `review-change`          | Reviewing a diff (yours or someone else's)                                 |
+| `review-pull-request`    | Reviewing or re-reviewing a contributor's PR for a maintainer, on GitHub   |
 | `security-review`        | Any change to input handling, logging, auth, upstream, dependencies        |
 | `bump-version`           | Preparing the version bump for a PR                                        |
 | `open-pull-request`      | Committing, pushing to the fork and opening the PR                         |

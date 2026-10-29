@@ -50,6 +50,10 @@ security relevant.
   files; CI checks the UID.
 - **Supply chain.** Dependencies are pinned in `uv.lock`, and the Docker build and CI install with
   `uv sync --locked`, which also refuses a lock that no longer matches `pyproject.toml`.
+- **Contributors' code on a maintainer's machine.** A fork's tests run with whatever they can reach:
+  `load_dotenv()` in `tests/conftest.py` reads a `.env` in any directory above `tests/`, and the
+  shell holds a GitHub token. Fork PRs run in CI without secrets; locally, a maintainer runs them
+  only in the throwaway container `review-pull-request` describes.
 
 ## Review checklist for any change
 
