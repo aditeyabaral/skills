@@ -37,25 +37,27 @@ Search by name; line numbers move.
 - **Colours come from the tokens.** Reuse an existing one where it fits (`--success`, `--warning`,
   `--danger`, `--get`, `--post`, `--muted`, ...). A new token is defined in both `:root` and
   `:root[data-theme="dark"]`.
-- **Server data is text.** A value from a response (`/health`, `/authenticate`, `/metrics`) is set
-  with `textContent`. Text from the schema that becomes part of markup the page builds goes through
-  `esc()` first, as `inline()` and `highlightJson()` do. Never put an unescaped value into
-  `innerHTML`.
+- **Server data is text.** A value from a response (`/health`, `/authenticate`, `/metrics`) or the
+  schema is set with `textContent`. Where the page has to build markup around it, it goes through
+  `esc()` first, as `responseHtml()`, `highlightJson()` and `inline()` do. Never put an unescaped
+  value into `innerHTML`.
 - **Credentials stay in their fields.** The password and the bearer token are never written to
   `localStorage`, `sessionStorage`, the URL, the console or a toast, and never copied anywhere except
   by **Copy request** when the user asks. `localStorage` holds the theme and nothing else
   (`.agents/pesudev-skills/auth/docs/security.md`).
 - **Each request the page makes on load costs one more request per visit in `/metrics`.** Today a
-  visit fetches `/`, `/openapi.json`, `/docs` and `/health`. Add a fetch only when the page needs it,
+  visit fetches `/`, `/openapi.json`, `/docs` and `/health`, and the browser asks for `/favicon.ico`
+  (issue 248). Add a fetch only when the page needs it,
   never make the sidebar wait for it, and give it its own `catch`, so a failure only hides its own
   part: `loadEnvironment()` is the pattern.
 - **Older or failing servers.** If a response lacks a field the page wants, the element stays
   hidden; the rest of the page works.
-- **Accessibility.** Controls are `<button type="button">` with an `aria-label`; a toggle publishes
-  `aria-pressed` or `aria-checked`, as the theme switcher does; everything works from the keyboard.
+- **Accessibility.** A new control is a `<button>` with an `aria-label` (and `type="button"` inside
+  the request form, so it does not submit it); a toggle publishes `aria-pressed` or `aria-checked`, as
+  the theme switcher does; everything works from the keyboard.
   Animations respect `prefers-reduced-motion`, and the layout has breakpoints at 1040px and 700px.
-- **Formatting.** No hook formats this file: match the two-space indentation and the style of the
-  code around your change.
+- **Formatting.** No formatter runs on this file (only the whitespace hooks): match the two-space
+  indentation and the style of the code around your change.
 
 ## Tests
 
@@ -81,7 +83,8 @@ uv run python -m app.app --debug     # then open http://localhost:5000/
 ```
 
 - the change in the light, dark and system themes, and at a narrow width;
-- send a request, and use **Copy request** and the response's **Copy**;
+- send a request, and use **Copy request** and the response's **Copy** (try `/health` or `/metrics`:
+  `/authenticate` signs in to PESU Academy for real);
 - the console shows no errors, and the network tab shows only the requests you expect;
 - make the endpoint your change reads fail for a moment (return an error from it locally, without
   committing that), and check that only your part disappears.

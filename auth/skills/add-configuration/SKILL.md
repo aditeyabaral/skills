@@ -73,8 +73,8 @@ parametrized fixtures (`environment` and `invalid_environment` are the model).
   not from `.env`, which only the tests and benchmarks read.
 - `_build_arg_parser()` help text for a flag.
 - In pesu-dev/skills: the Configuration section of `.agents/pesudev-skills/auth/docs/architecture.md`,
-  and a row in `setup-environment`'s troubleshooting table if a value exported in the shell can break
-  the tests.
+  and a row in `setup-environment`'s troubleshooting table if a value in the shell or `.env` can
+  break the tests.
 
 ## 4. Hand the deployment to a maintainer
 
@@ -92,4 +92,5 @@ A secret's value never goes in the PR; say only that it must be set.
 - Run the app with the setting unset, with a good value and with a bad one:
   `PESU_AUTH_<NAME>=... uv run python -m app.app`. A bad value must stop it with your message and a
   non-zero exit code.
-- The Docker image starts with nothing set (`run-locally`), as CI's smoke test will check.
+- The Docker image starts with nothing set, as CI's smoke test will check, and with the setting
+  passed in (`docker run -e PESU_AUTH_<NAME>=...`; `run-locally` has the commands).

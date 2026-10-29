@@ -59,13 +59,13 @@ it: the problem is not yours to hide inside another change.
 
 ## Troubleshooting
 
-| Symptom                                                                | Fix                                                                                         |
-| ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| `No interpreter found for Python >=3.14`                               | `uv python install 3.14`                                                                    |
-| Import errors for `httpx2`, `schemathesis` or `pandas`                 | `uv sync --all-groups` (you are outside the venv, it is stale, or a group is missing)       |
-| `check-symlinks` fails, or `AGENTS.md` is a dangling link              | `git submodule update --init`                                                               |
-| Integration or functional tests fail with connection errors            | No internet access to pesuacademy.com; run `tests/unit` only and say so                     |
-| Many `/metrics` tests fail with 401                                    | A `METRICS_TOKEN` is exported in your shell; `unset METRICS_TOKEN`                          |
-| Every `TestClient` test fails with `PESU_AUTH_ENVIRONMENT must be ...` | An invalid `PESU_AUTH_ENVIRONMENT` is exported in your shell; `unset PESU_AUTH_ENVIRONMENT` |
-| Live tests fail with 401                                               | The `TEST_*` credentials are wrong or have changed; ask the human, do not retry             |
-| `pre-commit` hook environments fail to build                           | `uv run pre-commit clean && uv run pre-commit install`                                      |
+| Symptom                                                                | Fix                                                                                                                                        |
+| ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| `No interpreter found for Python >=3.14`                               | `uv python install 3.14`                                                                                                                   |
+| Import errors for `httpx2`, `schemathesis` or `pandas`                 | `uv sync --all-groups` (you are outside the venv, it is stale, or a group is missing)                                                      |
+| `check-symlinks` fails, or `AGENTS.md` is a dangling link              | `git submodule update --init`                                                                                                              |
+| Integration or functional tests fail with connection errors            | No internet access to pesuacademy.com; run `tests/unit` only and say so                                                                    |
+| Many `/metrics` tests fail with 401                                    | A `METRICS_TOKEN` is exported in your shell; `unset METRICS_TOKEN`                                                                         |
+| Every `TestClient` test fails with `PESU_AUTH_ENVIRONMENT must be ...` | An invalid `PESU_AUTH_ENVIRONMENT` is in your shell or `.env` (the tests load it): `unset PESU_AUTH_ENVIRONMENT` and remove it from `.env` |
+| Live tests fail with 401                                               | The `TEST_*` credentials are wrong or have changed; ask the human, do not retry                                                            |
+| `pre-commit` hook environments fail to build                           | `uv run pre-commit clean && uv run pre-commit install`                                                                                     |

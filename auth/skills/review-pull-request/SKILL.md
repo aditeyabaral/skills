@@ -33,9 +33,9 @@ git -C ../auth-pr-<n> submodule update --init
 
 Running a pull request's code runs a stranger's code with your permissions:
 
-- `tests/conftest.py` calls `load_dotenv()`, which looks for `.env` in `tests/` and every directory
-  above it. A worktree inside your checkout hands your `TEST_*` credentials, a real PESU account, to
-  the PR's tests.
+- `tests/conftest.py` calls `load_dotenv()`, which loads the first `.env` it finds in `tests/` or any
+  directory above it. A worktree inside your checkout, or below any directory holding a `.env`, hands
+  your `TEST_*` credentials, a real PESU account, to the PR's tests.
 - Anything it runs can read your shell's variables, `~/.config/gh` (a GitHub token that can write to
   pesu-dev) and your SSH keys.
 
@@ -43,7 +43,8 @@ So:
 
 - Reading the diff is safe, and so is linting it with your own checkout's tools, which never execute
   it: `uv run ruff check ../auth-pr-<n>`, `uv run ruff format --check ../auth-pr-<n>` and
-  `uvx --from mdformat==1.0.0 --with mdformat-gfm --with mdformat-frontmatter mdformat --check <files>`.
+  `uvx --from mdformat==<version> --with mdformat-gfm --with mdformat-frontmatter mdformat --check <files>`,
+  with the mdformat version from your checkout's `.pre-commit-config.yaml`.
 - Never run `uv sync`, `uv run` or `pre-commit` inside the PR's worktree: its `pyproject.toml` and
   `.pre-commit-config.yaml` decide what those execute.
 - Let CI run it. Fork PRs get no secrets and run the reduced suite.
@@ -112,7 +113,8 @@ The maintainers' conventions for every review:
 - A fix spanning several places gets one suggestion per place, each saying "apply together (**Add
   suggestion to batch**)" and what breaks if only some are applied.
 - Before posting, apply each suggestion literally in the worktree and run ruff, mdformat and the
-  affected tests (in the container). A suggestion that fails a check costs the contributor a round.
+  affected tests (in the container), then undo it (`git -C ../auth-pr-<n> checkout .`). A suggestion
+  that fails a check costs the contributor a round.
 - One review per round, with inline comments on the lines and a short summary body: what you checked,
   and what is left. Something added after posting goes in a new comment review that starts "Follow-up
   to my review above".
@@ -143,6 +145,7 @@ it to them.
 
 ```bash
 gh api repos/pesu-dev/auth/pulls/<n>/reviews --jq '[.[] | select(.user.login=="<you>")][-1].commit_id'
+git fetch upstream <last reviewed sha>                                            # if you don't have it (full SHA)
 git diff <last reviewed sha> pr/<n>                                               # no rebase since
 diff <(git diff upstream/dev...<last reviewed sha>) <(git diff upstream/dev...pr/<n>)   # after a rebase
 ```
